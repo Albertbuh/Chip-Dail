@@ -1,7 +1,10 @@
 proc    Chip.Draw  uses es di,\
 	x, y
+	
         push    $A000
         pop     es
+
+	
 
         mov     ax, color
         mov     cx, H
@@ -34,10 +37,10 @@ proc    Chip.Move  uses ax dx
 .S:
         cmp     ax, KEY_S
         jne     .A  ; check S
-        mov     dx, [y_pos]
-        add     dx, H
-        cmp     dx, y_floor
-        ja      .A    ; check floor
+	mov	dx, [y_pos]
+	add	dx, H
+        cmp	dx, y_floor
+        jae     .A    ; check floor
 
         add     [y_pos], speed
 .A:
@@ -57,3 +60,4 @@ proc    Chip.Move  uses ax dx
 .end:
         ret
 endp 
+

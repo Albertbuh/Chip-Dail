@@ -35,10 +35,15 @@ proc    Screen.bkgClear uses es di ax
         push    $A000
         pop     es
 
-        mov     cx, 320*200
+        mov     cx, 320*150
         xor     ax,ax
         xor     di, di
         rep     stosb
+
+	mov	cx, 320*50
+	mov	ax, $24
+	mov	di, 320*150
+	rep	stosb
 
         ret
 endp  
