@@ -33,9 +33,16 @@ EntrypPoint:
 	jne	.upbox
 	stdcall Phys.Jump
 	stdcall Phys.Falling
-.upbox:
+
+.upbox: ; press Q
 	cmp	ax, KEY_Q
 	jne	.moveKeys
+	cmp	[boxUpped], True
+	jne	.checkLift
+
+	stdcall Chip.PushBox, boxForward
+
+.checkLift:
 	cmp	[canLift], 1
 	jne	.moveKeys
 	stdcall Chip.GetBox
@@ -48,13 +55,11 @@ EntrypPoint:
 	ret
 
 
-
-
-
 	include 'units\Keyboard\Keyboard.c'
 	include 'units\Screen\Screen.c'
 	include 'classes\MainHeroes\Chip.c'
 	include 'classes\Box\Box.c'
+	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
 x_pos	dw 160
@@ -63,5 +68,6 @@ box_x	dw 200
 box_y	dw 149
 canLift   db   False
 boxUpped  db   False
+
      ;	 include 'classes\Box\Box.du'
 

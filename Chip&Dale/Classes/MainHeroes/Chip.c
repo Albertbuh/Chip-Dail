@@ -2,9 +2,7 @@ proc    Chip.Draw  uses es di,\
 	x, y
 	
         push    $A000
-        pop     es
-
-	
+        pop     es	
 
         mov     ax, color
         mov     cx, H
@@ -61,10 +59,7 @@ proc    Chip.Move  uses ax dx
 .W:
         cmp     ax, KEY_W
         jne     .end  ;check w
-        mov     dx, [y_pos]
-        cmp     dx, seil
-        jbe     .end  ; check seil touching
-        sub     [y_pos], speed
+        stdcall	Chip.PushBox, boxUp
 .end:
         ret
 endp 
@@ -84,5 +79,12 @@ proc    Chip.GetBox  uses ax dx
 .end:
         ret
 endp
-      
+
+proc    Chip.PushBox,\
+        dir
+        and     [boxUpped], False
+        stdcall Box.Shoot, [dir]
+        ret
+endp 
+
 

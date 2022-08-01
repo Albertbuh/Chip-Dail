@@ -1,7 +1,14 @@
 proc    Box.Draw uses es di,\
         x,y
 
-
+	cmp	[x], right_wall
+	jae	.end
+	cmp	[y], seil
+	jbe	.end
+	
+	cmp	[x], left_wall
+	jb	.end	
+ 
         push    $A000
         pop     es
 
@@ -19,10 +26,11 @@ proc    Box.Draw uses es di,\
         pop     cx
         sub	di, 320+box_a
         loop    @B
+.end:
         ret
 endp
      
-proc    Box.CanBeLifted uses ax dx
+proc    Box.CanBeLifted
 
         mov     [canLift], False
 .checkX:
