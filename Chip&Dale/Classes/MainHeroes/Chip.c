@@ -32,9 +32,13 @@ endp
 
 proc    Chip.Move  uses ax dx
 
+	xor	cx,cx
+	mov	cl, [contactFlag]
 .D:
         cmp     ax, KEY_D
         jne      .S ;check D
+	test	cl, 0000_0001b
+	jnz	.S
         mov      dx, [x_pos]
         add      dx, W
         cmp      dx, right_wall
@@ -52,6 +56,8 @@ proc    Chip.Move  uses ax dx
 .A:
         cmp     ax, KEY_A
         jne     .W  ;Check A
+	test	cl, 0000_0100b
+	jnz	.W
         mov     dx, [x_pos]
         cmp     dx, left_wall
         jbe     .W ; check left_wall
@@ -82,9 +88,95 @@ endp
 
 proc    Chip.PushBox,\
         dir
+
+	cmp	[boxUpped], True
+	jne	.end
         and     [boxUpped], False
         stdcall Box.Shoot, [dir]
+.end:
         ret
 endp 
 
 
+proc    Chip.Contact uses ax cx dx,\
+        x,y, box_x, box_y
+
+        xor     cx,cx
+.availD:
+        mov     ax, [x]
+        add     ax, W
+        mov     dx, [box_x]
+        cmp     ax, dx
+        jne     .availS
+
+        mov     ax, [y]
+        mov     dx, [box_y]
+        cmp     ax, dx
+        ja      .availS
+        sub     dx, ax
+        cmp     dx, H+box_a-1
+        jae    .availS
+
+        add     cl, 0000_0001b
+.availS:
+        mov     ax, [y]
+        add     ax, H
+        mov     dx, [box_y]
+        add     dx, box_a
+        cmp     ax, dx
+        jne     .availA
+
+        mov     ax, [x]
+        mov     dx, [box_x]
+        cmp     ax,dx
+        jae     @F
+        sub     dx, ax
+        cmp     dx,  W
+        jb      .availA
+@@:
+        sub     ax, dx
+        cmp     ax, box_a
+        jb      .availA
+
+        add     cl, 0000_0010b
+.availA:
+        mov     ax, [x]
+        mov     dx, [box_x]
+        add     dx, box_a
+        cmp     ax, dx
+        jne     .availW
+
+
+        mov     ax, [y]
+        mov     dx, [box_y]
+        cmp     ax, dx
+        ja      .availS
+        sub     dx, ax
+        cmp     dx, H+box_a-1
+        jae    .availS
+
+        add     cl, 0000_0100b
+.availW:
+        mov     ax, [y]
+        mov     dx, [box_y]
+        cmp     ax, dx
+        jne     .end
+
+        mov     ax, [x]
+        mov     dx, [box_x]
+        cmp     ax,dx
+        jae     @F
+        sub     dx, ax
+        cmp     dx,  W
+        jb      .end
+@@:
+        sub     ax, dx
+        cmp     ax, box_a
+        jb      .end
+
+        add     cl, 0000_1000b
+.end:
+        mov     [contactFlag], cl
+        ret
+endp
+      

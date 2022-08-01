@@ -14,7 +14,7 @@ EntrypPoint:
 
 .Start:
 	stdcall Screen.bkgClear
-	stdcall Box.CanBeLifted
+	stdcall Chip.Contact, [x_pos], [y_pos], [box_x], [box_y]
 
 	stdcall Chip.Draw, [x_pos], [y_pos]
 
@@ -35,17 +35,8 @@ EntrypPoint:
 	stdcall Phys.Falling
 
 .upbox: ; press Q
-	cmp	ax, KEY_Q
-	jne	.moveKeys
-	cmp	[boxUpped], True
-	jne	.checkLift
+       stdcall PressQ
 
-	stdcall Chip.PushBox, boxForward
-
-.checkLift:
-	cmp	[canLift], 1
-	jne	.moveKeys
-	stdcall Chip.GetBox
 .moveKeys:
 	stdcall Chip.Move
 
@@ -55,6 +46,38 @@ EntrypPoint:
 	ret
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+proc PressQ
+	cmp	ax, KEY_Q
+	jne	.end
+
+	stdcall Chip.PushBox, boxForward
+.checkLift:
+	xor	cx,cx
+	mov	cl, [contactFlag]
+	test	cl, 0000_1111b
+	jz     .end
+	stdcall Chip.GetBox
+
+.end:
+	ret
+endp
 	include 'units\Keyboard\Keyboard.c'
 	include 'units\Screen\Screen.c'
 	include 'classes\MainHeroes\Chip.c'
@@ -62,12 +85,12 @@ EntrypPoint:
 	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
-x_pos	dw 160
+x_pos	dw 150
 y_pos	dw 150-H
 box_x	dw 200
 box_y	dw 149
 canLift   db   False
 boxUpped  db   False
-
+contactFlag db	 0000_0000b
      ;	 include 'classes\Box\Box.du'
 
