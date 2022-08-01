@@ -1,6 +1,6 @@
 proc    Phys.Falling
         locals
-                fallSpeed = physSpeed
+                fallSpeed = physSpeed+5
                 wOldSec dw      ?
         endl
 .down:
@@ -26,7 +26,6 @@ proc    Phys.Falling
         sub     ax, H
         cmp     ax, fallSpeed
         ja     .SkipDrop
-        mov     [fallSpeed], ax
         add     [y_pos], ax
 .SkipDrop:
         ret

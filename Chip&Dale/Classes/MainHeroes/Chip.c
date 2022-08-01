@@ -21,6 +21,14 @@ proc    Chip.Draw  uses es di,\
         add     di, 320-W
         loop    @B
 
+
+	cmp	[boxUpped], False
+	je	.end
+	stdcall	Chip.GetBox
+	stdcall	Box.Draw, [box_x], [box_y]
+	
+
+.end:
         ret
 endp 
 
@@ -60,4 +68,21 @@ proc    Chip.Move  uses ax dx
 .end:
         ret
 endp 
+
+proc    Chip.GetBox  uses ax dx
+
+        xor          ax,ax
+        xor          dx,dx
+        mov     ax, [x_pos]
+        add     ax, W/4
+        mov     dx, [y_pos]
+        sub     dx, 1
+
+        mov     [box_x], ax
+        mov     [box_y], dx
+        mov     [boxUpped], True
+.end:
+        ret
+endp
+      
 

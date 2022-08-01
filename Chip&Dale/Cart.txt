@@ -1,0 +1,29 @@
+.Start:
+        stdcall Screen.bkgClear
+        stdcall Chip.Draw, [x_pos], [y_pos]
+        stdcall Box.CanBeLifted
+        cmp     [boxUpped], True
+        je      @F
+        stdcall Box.Draw, [box_x], [box_y]
+@@:
+        stdcall Keyboard.KeyPress ; ax <- key
+
+
+        cmp     ax, KEY_SPACE
+        jne     @F
+        stdcall Phys.Jump
+        stdcall Phys.Falling
+@@:
+        cmp     ax, KEY_Q
+        jne     @F
+        cmp     [canLift], 1
+        jne     @F
+        stdcall Chip.GetBox
+
+@@:
+        cmp     ax, KEY_ESCAPE
+        je      .end
+        stdcall Chip.Move
+
+
+        loop    .Start  

@@ -5,7 +5,8 @@
 	include 'units\Screen\Screen.h'
 	include 'units\Phys\Phys.h'
 	include 'classes\Box\Box.h'
-
+True = 1
+False = 0
 	org 100h
 
 EntrypPoint:
@@ -13,77 +14,42 @@ EntrypPoint:
 
 .Start:
 	stdcall Screen.bkgClear
+	stdcall Box.CanBeLifted
+
 	stdcall Chip.Draw, [x_pos], [y_pos]
-	stdcall Chip.CanLiftBox
+
+	cmp	[boxUpped], True
+	je	.keypress
 	stdcall Box.Draw, [box_x], [box_y]
-	stdcall Keyboard.KeyPress ; ax <- key
 
+.keypress:
+	stdcall Keyboard.KeyPress
 
-	cmp	ax, KEY_SPACE
-	jne	@F
-	stdcall Phys.Jump
-	stdcall Phys.Falling
-@@:
-	cmp	ax, KEY_Q
-	jne	@F
-	cmp	[boxUpped], 1
-	jne	@F
-	stdcall Chip.GetBox
-
-@@:
+.Esc:
 	cmp	ax, KEY_ESCAPE
 	je	.end
+.Space:
+	cmp	ax, KEY_SPACE
+	jne	.upbox
+	stdcall Phys.Jump
+	stdcall Phys.Falling
+.upbox:
+	cmp	ax, KEY_Q
+	jne	.moveKeys
+	cmp	[canLift], 1
+	jne	.moveKeys
+	stdcall Chip.GetBox
+.moveKeys:
 	stdcall Chip.Move
 
-
-	loop	.Start
+	jmp	.Start
 
 .end:
 	ret
 
 
-proc	Chip.GetBox  uses ax dx
 
 
-
-	xor	     ax,ax
-	xor	     dx,dx
-	mov	ax, [x_pos]
-	add	ax, W/4
-	mov	dx, [y_pos]
-	sub	dx, 1
-
-	mov	[box_x], ax
-	mov	[box_y], dx
-.end:
-	ret
-endp
-
-proc	Chip.CanLiftBox uses ax dx
-
-	mov	[boxUpped], 0
-.checkX:
-	xor	ax,ax
-	xor	dx,dx
-	mov	ax,[x_pos]
-	add	ax, W
-	mov	dx, [box_x]
-	sub    ax,dx
-	cmp    ax, 0
-	jne    .end
-.checkY:
-	xor	ax,ax
-	xor	dx,dx
-	mov	ax, [y_pos]
-	add	ax, H-1
-	mov	dx, [box_y]
-	sub	ax,dx
-	cmp	ax,0
-	jne	.end
-	inc    [boxUpped]
-.end:
-	ret
-endp
 
 	include 'units\Keyboard\Keyboard.c'
 	include 'units\Screen\Screen.c'
@@ -93,6 +59,9 @@ endp
 	include 'units\Phys\Jump.c'
 x_pos	dw 160
 y_pos	dw 150-H
-boxUpped   db	0
-	include 'classes\Box\Box.du'
+box_x	dw 200
+box_y	dw 149
+canLift   db   False
+boxUpped  db   False
+     ;	 include 'classes\Box\Box.du'
 
