@@ -150,10 +150,10 @@ proc    Chip.Contact uses ax cx dx,\
         mov     ax, [y]
         mov     dx, [box_y]
         cmp     ax, dx
-        ja      .availS
+        ja      .availW
         sub     dx, ax
         cmp     dx, H+box_a-1
-        jae    .availS
+        jae    .availW
 
         add     cl, 0000_0100b
 .availW:
