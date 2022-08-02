@@ -1,9 +1,10 @@
 proc    Phys.Jump uses ax dx
         locals
                 jpSpeed = physSpeed
-                jpLim   = 80  ; Limit of jump
+                jpLim   = 60  ; Limit of jump
                 jpLimY  dw ?
                 wOldSec dw ?
+                RepSec  db 3
         endl
         mov     ax, [y_pos]
         sub     ax, jpLim
@@ -12,7 +13,10 @@ proc    Phys.Jump uses ax dx
 .moveup:
         mov     ah, $2C
         int     21h
-        movzx   dx, dl
+        movzx   ax, dl
+        div     [RepSec]
+        movzx     dx, al
+
 
         cmp     [wOldSec], dx
         je      .dontmove
@@ -26,11 +30,10 @@ proc    Phys.Jump uses ax dx
 
         stdcall FlyMove
 .dontmove:
-
         mov     ax, [jpLimY]
         cmp     [y_pos], ax
         jae     .moveup
 
 .end:
         ret
-endp 
+endp      

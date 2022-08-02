@@ -1,4 +1,4 @@
-proc    Chip.Move.Left,\
+proc    Chip.Move.Left uses ax dx,\
         speed
 
         mov     ax, [x_pos]
@@ -15,7 +15,7 @@ proc    Chip.Move.Left,\
         ret
 endp
 
-proc    Chip.Move.Right,\
+proc    Chip.Move.Right uses ax dx,\
         speed
         mov     ax, [x_pos]
 

@@ -15,17 +15,13 @@ EntrypPoint:
 .Start:
 	stdcall Screen.bkgClear
 	stdcall Chip.Contact, [x_pos], [y_pos], [box_x], [box_y]
-
 	stdcall Chip.Draw, [x_pos], [y_pos]
-
 	cmp	[boxUpped], True
 	je	.keypress
 	stdcall Box.Draw, [box_x], [box_y]
 
-
 .keypress:
 	stdcall Keyboard.KeyPressInt16
-
 .Esc:
 	cmp	ax, KEY_ESCAPE
 	je	.end
@@ -41,7 +37,9 @@ EntrypPoint:
 
 .moveKeys:
 	stdcall Chip.Move
+
 	jmp	.Start
+
 
 .end:
 	ret
@@ -53,34 +51,43 @@ EntrypPoint:
 
 
 
-proc	FlyMove uses	ax
 
-	xor	ax,ax
+proc	FlyMove  uses	 ax
+
 	mov	ah, $01
 	int	16h
-	jz	.end
+	jz	.prev
 	cmp	ah, KEY_A
 	jne	@F
-	stdcall Chip.Move.Left, speed*2
+	stdcall Chip.Move.Left, speed
 @@:
 	cmp	ah, KEY_D
 	jne	.end
-	stdcall Chip.Move.Right, speed*2
+	stdcall Chip.Move.Right, speed
+.prev:
+	cmp	[prev_key], KEY_A
+	jne	@F
+	stdcall Chip.Move.Left, speed
+@@:
+	cmp	[prev_key], KEY_D
+	jne	.end
+	stdcall Chip.Move.Right, speed
+
 .end:
 	ret
 endp
-
-
-
-
-
-
 
 proc PressQ
 	cmp	ax, KEY_Q
 	jne	.end
 
+	cmp	[prev_key], KEY_D
+	jne	@F
 	stdcall Chip.PushBox, boxForward
+@@:
+	cmp	[prev_key], KEY_A
+	jne	.checkLift
+	stdcall Chip.PushBox, boxBack
 .checkLift:
 	xor	cx,cx
 	mov	cl, [contactFlag]
@@ -90,6 +97,9 @@ proc PressQ
 .end:
 	ret
 endp
+
+
+
 	include 'units\Keyboard\Keyboard.c'
 	include 'units\Screen\Screen.c'
 	include 'classes\MainHeroes\Chip.c'
@@ -104,5 +114,6 @@ box_x	dw 200
 box_y	dw 149
 boxUpped  db   False
 contactFlag db	 0000_0000b
+prev_key    dw	 ?
      ;	 include 'classes\Box\Box.du'
 

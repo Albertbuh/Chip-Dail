@@ -1,12 +1,15 @@
 proc    Phys.Falling
         locals
-                fallSpeed = physSpeed+5
+                fallSpeed = 5+physSpeed
                 wOldSec dw      ?
+		RepSec	db	3
         endl
 .down:
         mov     ah, $2C
         int     21h
-        movzx   dx, dl
+        movzx   ax, dl
+	div	[RepSec]
+	movzx	dx, al
 
         cmp     [wOldSec], dx
         je      .dontmove

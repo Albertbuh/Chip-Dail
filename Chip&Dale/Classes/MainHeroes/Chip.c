@@ -149,6 +149,7 @@ proc    Chip.Move  uses ax dx
 .D:
         cmp     ax, KEY_D
         jne      .S ;check D
+	mov     [prev_key], ax 
         stdcall Chip.Move.Right, speed
 .S:
         cmp     ax, KEY_S
@@ -157,6 +158,7 @@ proc    Chip.Move  uses ax dx
 .A:
         cmp     ax, KEY_A
         jne     .W  ;Check A
+	mov     [prev_key], ax 
         stdcall Chip.Move.Left, speed
 .W:
         cmp     ax, KEY_W
