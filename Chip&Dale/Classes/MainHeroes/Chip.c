@@ -30,45 +30,7 @@ proc    Chip.Draw  uses es di,\
         ret
 endp 
 
-proc    Chip.Move  uses ax dx
-
-	xor	cx,cx
-	mov	cl, [contactFlag]
-.D:
-        cmp     ax, KEY_D
-        jne      .S ;check D
-	test	cl, 0000_0001b
-	jnz	.S
-        mov      dx, [x_pos]
-        add      dx, W
-        cmp      dx, right_wall
-        jae      .S  ;check rWall
-        add     [x_pos], speed
-.S:
-        cmp     ax, KEY_S
-        jne     .A  ; check S
-	mov	dx, [y_pos]
-	add	dx, H
-        cmp	dx, y_floor
-        jae     .A    ; check floor
-
-        add     [y_pos], speed
-.A:
-        cmp     ax, KEY_A
-        jne     .W  ;Check A
-	test	cl, 0000_0100b
-	jnz	.W
-        mov     dx, [x_pos]
-        cmp     dx, left_wall
-        jbe     .W ; check left_wall
-        sub     [x_pos], speed
-.W:
-        cmp     ax, KEY_W
-        jne     .end  ;check w
-        stdcall	Chip.PushBox, boxUp
-.end:
-        ret
-endp 
+ 
 
 proc    Chip.GetBox  uses ax dx
 
@@ -97,8 +59,7 @@ proc    Chip.PushBox,\
         ret
 endp 
 
-
-proc    Chip.Contact uses ax cx dx,\
+ proc    Chip.Contact uses ax cx dx,\
         x,y, box_x, box_y
 
         xor     cx,cx
@@ -150,10 +111,10 @@ proc    Chip.Contact uses ax cx dx,\
         mov     ax, [y]
         mov     dx, [box_y]
         cmp     ax, dx
-        ja      .availS
+        ja      .availW
         sub     dx, ax
         cmp     dx, H+box_a-1
-        jae    .availS
+        jae    .availW
 
         add     cl, 0000_0100b
 .availW:
@@ -178,5 +139,30 @@ proc    Chip.Contact uses ax cx dx,\
 .end:
         mov     [contactFlag], cl
         ret
-endp
+endp   
+
+
+proc    Chip.Move  uses ax dx
+
+        xor     cx,cx
+        mov     cl, [contactFlag]
+.D:
+        cmp     ax, KEY_D
+        jne      .S ;check D
+        stdcall Chip.Move.Right, speed
+.S:
+        cmp     ax, KEY_S
+        jne     .A ; check S
+        stdcall Chip.Move.Down
+.A:
+        cmp     ax, KEY_A
+        jne     .W  ;Check A
+        stdcall Chip.Move.Left, speed
+.W:
+        cmp     ax, KEY_W
+        jne     .end  ;check w :
+        stdcall Chip.PushBox, boxUp
+.end:
+        ret
+endp 
       

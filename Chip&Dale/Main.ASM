@@ -22,12 +22,14 @@ EntrypPoint:
 	je	.keypress
 	stdcall Box.Draw, [box_x], [box_y]
 
+
 .keypress:
-	stdcall Keyboard.KeyPress
+	stdcall Keyboard.KeyPressInt16
 
 .Esc:
 	cmp	ax, KEY_ESCAPE
 	je	.end
+
 .Space:
 	cmp	ax, KEY_SPACE
 	jne	.upbox
@@ -39,7 +41,6 @@ EntrypPoint:
 
 .moveKeys:
 	stdcall Chip.Move
-
 	jmp	.Start
 
 .end:
@@ -52,10 +53,22 @@ EntrypPoint:
 
 
 
+proc	FlyMove uses	ax
 
-
-
-
+	xor	ax,ax
+	mov	ah, $01
+	int	16h
+	jz	.end
+	cmp	ah, KEY_A
+	jne	@F
+	stdcall Chip.Move.Left, speed*2
+@@:
+	cmp	ah, KEY_D
+	jne	.end
+	stdcall Chip.Move.Right, speed*2
+.end:
+	ret
+endp
 
 
 
@@ -74,13 +87,13 @@ proc PressQ
 	test	cl, 0000_1111b
 	jz     .end
 	stdcall Chip.GetBox
-
 .end:
 	ret
 endp
 	include 'units\Keyboard\Keyboard.c'
 	include 'units\Screen\Screen.c'
 	include 'classes\MainHeroes\Chip.c'
+	include 'classes\MainHeroes\Chip.Move.c'
 	include 'classes\Box\Box.c'
 	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
@@ -89,7 +102,6 @@ x_pos	dw 150
 y_pos	dw 150-H
 box_x	dw 200
 box_y	dw 149
-canLift   db   False
 boxUpped  db   False
 contactFlag db	 0000_0000b
      ;	 include 'classes\Box\Box.du'

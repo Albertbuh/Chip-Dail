@@ -1,4 +1,4 @@
-proc    Keyboard.KeyPress
+proc    Keyboard.KeyPressInt21
         mov     ax, $0C08
         int     21h
         movzx   cx, al
@@ -10,4 +10,12 @@ proc    Keyboard.KeyPress
 @@:
         mov     ax,cx
         ret
+endp
+
+proc	Keyboard.KeyPressInt16
+	xor	ax,ax
+	int	16h
+	xor	al,al
+	movzx	ax, ah
+	ret
 endp   

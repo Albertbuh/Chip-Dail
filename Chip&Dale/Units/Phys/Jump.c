@@ -1,7 +1,7 @@
 proc    Phys.Jump uses ax dx
         locals
                 jpSpeed = physSpeed
-                jpLim   = 60  ; Limit of jump
+                jpLim   = 80  ; Limit of jump
                 jpLimY  dw ?
                 wOldSec dw ?
         endl
@@ -22,6 +22,9 @@ proc    Phys.Jump uses ax dx
         jbe     .end
         stdcall Screen.bkgClear
         stdcall Chip.Draw, [x_pos], [y_pos]
+        stdcall Box.Draw, [box_x], [box_y]
+
+        stdcall FlyMove
 .dontmove:
 
         mov     ax, [jpLimY]

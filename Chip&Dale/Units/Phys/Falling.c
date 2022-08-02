@@ -15,6 +15,8 @@ proc    Phys.Falling
         add     [y_pos], fallSpeed
         stdcall Screen.bkgClear
         stdcall Chip.Draw, [x_pos], [y_pos]
+	stdcall	Box.Draw, [box_x], [box_y]
+	stdcall	FlyMove
 .dontmove:
         mov     ax, [y_pos]
         add     ax,  H
