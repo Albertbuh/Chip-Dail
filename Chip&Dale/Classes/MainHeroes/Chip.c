@@ -5,19 +5,34 @@ proc    Chip.Draw  uses es di,\
         pop     es	
 
         mov     ax, color
-        mov     cx, H
+
+	mov	cl, [shiftState]
+	cmp	cl, True
+	je	.shift
+
+	mov	cx, H
         mov 	di, [y]
 	imul	di, 320
 	add	di, [x]
-	
+	jmp	.draw
+.shift:
+	mov	cx, H/2
+	mov	di, [y]
+	imul	di, 320
+	add	di, [x]
 @@:
+	add	di, 320
+	loop 	@B
+	mov	cx, H/2
+	
+.draw:
         push    cx
         mov     cx, W
         rep     stosb
 
         pop     cx
-        add     di, 320-W
-        loop    @B
+        add	di, 320-W
+        loop    .draw
 
 
 	cmp	[boxUpped], False
@@ -123,6 +138,9 @@ endp
 
 proc    Chip.GetBox  uses ax dx
 
+	mov	cl, [shiftState]
+	cmp	cl, True
+	je	.end
         xor          ax,ax
         xor          dx,dx
         mov     ax, [x_pos]
@@ -152,7 +170,7 @@ endp
 
 
 proc    Chip.KeyMove  uses ax dx
-
+	local const_two = 2
  	stdcall Chip.Contact, [x_pos], [y_pos], [box_x], [box_y]
 
 .D:
@@ -163,7 +181,10 @@ proc    Chip.KeyMove  uses ax dx
 .S:
         cmp     ax, KEY_S
         jne     .A ; check S
-        stdcall Chip.Move.Down, speed
+	mov	cl, [shiftState]	
+	xor	cl, True
+	mov	[shiftState], cl
+        ;stdcall Chip.Move.Down, speed
 .A:
         cmp     ax, KEY_A
         jne     .W  ;Check A

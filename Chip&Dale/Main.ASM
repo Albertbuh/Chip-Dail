@@ -110,11 +110,12 @@ endp
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
 x_pos	dw 200
-y_pos	dw 50-H
+y_pos	dw 50
 box_x	dw 200
 box_y	dw 149
 boxUpped  db   False
 contactFlag db	 0000_0000b
 prev_key    dw	 ?
+shiftState  db	 False
      ;	 include 'classes\Box\Box.du'
 
