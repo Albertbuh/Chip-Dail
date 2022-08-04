@@ -1,44 +1,60 @@
-proc    Chip.Move.Left uses ax dx,\
-        speed
-
-        mov     ax, [x_pos]
-
-        test    cl, 0000_0100b
-        jnz     .end
-        mov     dx, ax
-        cmp     dx, left_wall
-        jbe     .end ; check left_wall
-        sub     ax,  [speed]
-        mov     [x_pos], ax
+proc	Chip.Move.Left uses ax cx dx,\
+	speed
+	
+	mov	ax, [x_pos]
+	xor     cx,cx
+        mov     cl, [contactFlag]
+	test	cl, availA
+	jnz	.end
+	mov	dx, ax
+	cmp	dx, left_wall
+	jbe	.end ; check left_wall
+	sub	ax,  [speed]
+	mov	[x_pos], ax
 
 .end:
-        ret
+	ret
 endp
 
-proc    Chip.Move.Right uses ax dx,\
-        speed
-        mov     ax, [x_pos]
+proc	Chip.Move.Right uses ax cx dx,\
+	speed
+	
+	mov	ax, [x_pos]
 
-        test    cl, 0000_0001b
-        jnz     .end
-        mov      dx, ax
-        add      dx, W
-        cmp      dx, right_wall
-        jae      .end  ;check rWall
-        add     ax, [speed]
-        mov     [x_pos], ax
+	xor     cx,cx
+        mov     cl, [contactFlag]
+	test	cl, availD
+	jnz	.end
+	mov	 dx, ax
+	add	 dx, W
+	cmp	 dx, right_wall
+	jae	 .end  ;check rWall
+	add	ax, [speed]
+	mov	[x_pos], ax
 .end:
-        ret
+	ret
 endp
 
-proc    Chip.Move.Down
+proc	Chip.Move.Down uses ax dx,\
+	speed
+	
+	xor     cx,cx
+        mov     cl, [contactFlag]
+	test	cl, availS
+	jnz	.dontmove
 
-        mov     dx, [y_pos]
-        add     dx, H
-        cmp     dx, y_floor
-        jae     .end    ; check floor
+	mov	dx, [y_pos]
+	add	dx, H
+	add	dx, [speed]
+	cmp	dx, y_floor
+	jae	.dontmove ; check floor
 
-        add     [y_pos], speed
+	mov	ax, [speed]
+	add	[y_pos], ax
+	jmp	.end
+.dontmove:
+	mov	cx, STOPFALLING
+	
 .end:
-        ret
-endp    
+	ret
+endp	

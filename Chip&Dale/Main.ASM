@@ -7,6 +7,8 @@
 	include 'classes\Box\Box.h'
 True = 1
 False = 0
+
+
 	org 100h
 
 EntrypPoint:
@@ -14,7 +16,7 @@ EntrypPoint:
 
 .Start:
 	stdcall Screen.bkgClear
-	stdcall Chip.Contact, [x_pos], [y_pos], [box_x], [box_y]
+
 	stdcall Chip.Draw, [x_pos], [y_pos]
 	cmp	[boxUpped], True
 	je	.keypress
@@ -30,21 +32,19 @@ EntrypPoint:
 	cmp	ax, KEY_SPACE
 	jne	.upbox
 	stdcall Phys.Jump
-	stdcall Phys.Falling
 
 .upbox: ; press Q
        stdcall PressQ
 
 .moveKeys:
-	stdcall Chip.Move
+	stdcall Chip.KeyMove
 
+	stdcall Phys.Falling
 	jmp	.Start
 
 
 .end:
 	ret
-
-
 
 
 
@@ -74,6 +74,7 @@ proc	FlyMove  uses	 ax
 	stdcall Chip.Move.Right, speed
 
 .end:
+
 	ret
 endp
 
@@ -91,7 +92,7 @@ proc PressQ
 .checkLift:
 	xor	cx,cx
 	mov	cl, [contactFlag]
-	test	cl, 0000_1111b
+	test	cl, availA+availD
 	jz     .end
 	stdcall Chip.GetBox
 .end:
@@ -108,8 +109,8 @@ endp
 	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
-x_pos	dw 150
-y_pos	dw 150-H
+x_pos	dw 200
+y_pos	dw 50-H
 box_x	dw 200
 box_y	dw 149
 boxUpped  db   False

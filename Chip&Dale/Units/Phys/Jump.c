@@ -4,7 +4,7 @@ proc    Phys.Jump uses ax dx
                 jpLim   = 60  ; Limit of jump
                 jpLimY  dw ?
                 wOldSec dw ?
-                RepSec  db 3
+                RepSec  db 5
         endl
         mov     ax, [y_pos]
         sub     ax, jpLim
@@ -23,7 +23,7 @@ proc    Phys.Jump uses ax dx
 
         mov     [wOldSec], dx
         sub     [y_pos], jpSpeed
-        jbe     .end
+	jbe	.end
         stdcall Screen.bkgClear
         stdcall Chip.Draw, [x_pos], [y_pos]
         stdcall Box.Draw, [box_x], [box_y]
@@ -33,6 +33,9 @@ proc    Phys.Jump uses ax dx
         mov     ax, [jpLimY]
         cmp     [y_pos], ax
         jae     .moveup
+	jmp	.end
+
+
 
 .end:
         ret

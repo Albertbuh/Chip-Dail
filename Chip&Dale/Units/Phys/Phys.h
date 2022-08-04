@@ -1,1 +1,2 @@
 physSpeed = 15 
+STOPFALLING = $1234
