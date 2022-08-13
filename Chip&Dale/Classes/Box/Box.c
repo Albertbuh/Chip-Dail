@@ -1,35 +1,50 @@
-proc    Box.Draw uses es di,\
-        x,y
+proc    Box.Create uses di cx,\  ;drawing all boxes
+        boxes
 
-	cmp	[x], right_wall
-	jae	.end
-	cmp	[y], seil
-	jbe	.end
-	
-	cmp	[x], left_wall
-	jb	.end	
- 
+        mov     cx, box_col
+        mov     di, [boxes]
+@@:
+        stdcall Box.Draw, [di], [di+2]
+        add     di, 4
+        loop    @B
+
+
+        ret
+endp   
+
+proc    Box.Draw uses es di ax cx dx,\   ;drawing a single box 
+        x,y
+     ;   mov     ax, [x]
+     ;   add     ax, box_a
+     ;   cmp     ax, right_wall
+     ;   jae     .end
+     ;   mov     ax, [y]
+     ;   add     ax, box_a
+     ;   cmp     [y], seil
+     ;   jbe     .end
+     ;   cmp     [x], left_wall
+     ;   jb      .end
+
         push    $A000
         pop     es
-
         mov     ax, box_color
         mov     cx, box_a
         mov     di, [y]
         imul    di, 320
         add     di, [x]
-
-@@:
+.draw:
         push    cx
         mov     cx, box_a
         rep     stosb
-
         pop     cx
-        sub	di, 320+box_a
-        loop    @B
+        sub     di, 320+box_a
+        loop    .draw
 .end:
         ret
-endp
-     
+endp    
+  
+
+   
 proc    Box.CanBeLifted
 
         mov     [canLift], False
