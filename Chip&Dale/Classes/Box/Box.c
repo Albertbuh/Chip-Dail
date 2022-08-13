@@ -1,10 +1,14 @@
-proc    Box.Create uses di cx,\  ;drawing all boxes
+proc    Box.Create uses di cx dx,\  ;drawing all boxes
         boxes
 
         mov     cx, box_col
         mov     di, [boxes]
 @@:
+	mov	dx, [di]
+	cmp	dx, 0
+	je	.skip
         stdcall Box.Draw, [di], [di+2]
+.skip:
         add     di, 4
         loop    @B
 

@@ -7,7 +7,7 @@
 	include 'classes\Box\Box.h'
 True = 1
 False = 0
-
+ZERO = 0
 
 	org 100h
 
@@ -68,6 +68,21 @@ proc	Chip.ContactWithObjects uses si di,\
 endp
 
 
+proc	Chip.PushBox,\
+	dir
+
+	cmp	[boxUpped], True
+	jne	.end
+	and	[boxUpped], False
+	stdcall Box.Shoot, [dir], [uppedBoxAdr], [uppedBoxAdr+2]
+	mov	di, [uppedBoxAdr]
+	mov	word[di], ZERO
+	mov	word[di+2], ZERO
+	mov	[uppedBoxID], 0
+
+.end:
+	ret
+endp
 
 
 
@@ -119,29 +134,34 @@ proc	FlyMove  uses	 ax
 	ret
 endp
 
-proc PressQ uses di
+proc	PressQ uses di
 	cmp	ax, KEY_Q
 	jne	.end
 
-      ;  cmp	 [prev_key], KEY_D
-      ;  jne	 @F
-      ;  stdcall Chip.PushBox, boxForward
+	cmp    [boxUpped], True
+	jne	.checkLift
+;case when we have box on head
+	cmp	[prev_key], KEY_D
+	jne	@F
+	stdcall Chip.PushBox, boxForward
 @@:
-       ; cmp	 [prev_key], KEY_A
-       ; jne	 .checkLift
-      ;  stdcall Chip.PushBox, boxBack
+	cmp	[prev_key], KEY_A
+	jne	.end
+	stdcall Chip.PushBox, boxBack
+	jmp	.end
+;case when we don't
 .checkLift:
 	stdcall Chip.ContactWithObjects, [x_pos],[y_pos], H,W,\
 				Boxes_coordinates, box_col, box_a,box_a
 	mov	[uppedBoxID], box_col
 	sub	[uppedBoxID], cl
+
 	; check if we can up box
 	xor	cx,cx
 	mov	cl, [contactFlag]
 	test	cl, availA+availD
 	jz     .end
-	cmp    [uppedBox], True
-	je     .end
+
 	;find the box we can up
 	mov	di, Boxes_coordinates
 	mov	cl, [uppedBoxID]
@@ -149,7 +169,8 @@ proc PressQ uses di
 	add	di, 4
 	loop	@B
 	stdcall Chip.GetBox, di
-	mov	[uppedBox], True
+       ; mov	 [uppedBoxAdr], di
+	mov	[boxUpped], True
 .end:
 	ret
 endp
@@ -174,9 +195,9 @@ Boxes_coordinates   dw	150,149,\
 			75, 130
 box_col=($-Boxes_coordinates)/4
 
-uppedBox	db	False
+boxUpped	db	False
 uppedBoxID	db	0
-uppedBoxPos dw		0
+uppedBoxAdr dw		0
 contactFlag db		0000_0000b
 prev_key    dw		?
 shiftState  db		False

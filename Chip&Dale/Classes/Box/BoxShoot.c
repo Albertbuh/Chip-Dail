@@ -1,97 +1,110 @@
-proc    Box.Shoot,\
-        dir ; 0-up, 1-forward, 2-back
-        cmp [dir], boxUp
-        jne @F
-        stdcall Box.ShootUp
+proc	Box.Shoot uses si di,\
+	dir, x,y ; 0-up, 1-forward, 2-back
+
+	
+	cmp [dir], boxUp
+	jne @F
+	stdcall Box.ShootUp, [x],[y]
 @@:
-        cmp [dir], boxForward
-        jne @F
-        stdcall Box.ShootForward
+	cmp [dir], boxForward
+	jne @F
+        stdcall Box.ShootForward, [x],[y]
 @@:
-        cmp [dir], boxBack
-        jne .end
-        stdcall Box.ShootBack
+	cmp [dir], boxBack
+	jne .end
+	stdcall Box.ShootBack, [x],[y]
 .end:
-        ret
+	ret
 endp
-proc    Box.ShootForward
-        locals
-                shootSpeed = 15
-                wOldSec    dw ?
-        endl
+
+proc	Box.ShootForward uses si di,\
+	box_x, box_y
+	locals
+		shootSpeed = 15
+		wOldSec    dw ?
+	endl
 .shoot:
-        mov     ah, $2c
-        int     21h
-        movzx     dx, dl
-        cmp     [wOldSec], dx
-        je      .dontmove
-        mov     [wOldSec], dx
+	mov	ah, $2c
+	int	21h
+	movzx	  dx, dl
+	cmp	[wOldSec], dx
+	je	.dontmove
+	mov	[wOldSec], dx
 
-        add     [box_x], shootSpeed
+	mov	di, [box_x]
+	mov	dx, [di]
+	add	dx, shootSpeed
+	mov	[di], dx
 
-        stdcall  Screen.bkgClear
-        stdcall  Chip.Draw, [x_pos], [y_pos]
-        stdcall  Box.Draw, [box_x], [box_y]
+	stdcall  Screen.bkgClear
+	stdcall  Chip.Draw, [x_pos], [y_pos] 
+	stdcall  Box.Create, Boxes_coordinates
+       
 .dontmove:
 
-        cmp     [box_x],  right_wall
-        jb      .shoot
+	cmp	dx, right_wall
+	jb	.shoot
 
 .end:
-        ret
+	ret
 endp
 
-proc    Box.ShootUp
-        locals
-                shootSpeed = 15
-                wOldSec    dw ?
-        endl
+proc	Box.ShootUp ,\
+	box_x, box_y
+	locals
+		shootSpeed = 15
+		wOldSec    dw ?
+	endl
 .shoot:
-        mov     ah, $2c
-        int     21h
-        movzx     dx, dl
-        cmp     [wOldSec], dx
-        je      .dontmove
+	mov	ah, $2c
+	int	21h
+	movzx	  dx, dl
+	cmp	[wOldSec], dx
+	je	.dontmove
 
-        mov     [wOldSec], dx
-        sub     [box_y], shootSpeed
-        stdcall  Screen.bkgClear
-        stdcall  Chip.Draw, [x_pos], [y_pos]
-        stdcall  Box.Draw, [box_x], [box_y]
+	mov	di, [box_y]
+	mov	dx, [di]
+	sub	dx, shootSpeed
+	mov	[di], dx
+
+	stdcall  Screen.bkgClear
+	stdcall  Chip.Draw, [x_pos], [y_pos]
+	stdcall  Box.Create, Boxes_coordinates
 .dontmove:
-        cmp     [box_y],  seil
-        ja      .shoot
+	cmp	dx, seil
+	ja	.shoot
 .end:
-        ret
+	ret
 endp
 
-proc    Box.ShootBack
-        locals
-                shootSpeed = 15
-                wOldSec    dw ?
-        endl
+proc	Box.ShootBack ,\
+	box_x,box_y
+	locals
+		shootSpeed = 15
+		wOldSec    dw ?
+	endl
 .shoot:
-        mov     ah, $2c
-        int     21h
-        movzx     dx, dl
-        cmp     [wOldSec], dx
-        je      .dontmove
+	mov	ah, $2c
+	int	21h
+	movzx	  dx, dl
+	cmp	[wOldSec], dx
+	je	.dontmove
 
-        mov     [wOldSec], dx
-        cmp     [box_x], shootSpeed
-        jb      @F
-        sub     [box_x], shootSpeed
-        jmp     .draw
-@@:
-        sub     [box_x], 5 ; min count
+	mov	[wOldSec], dx
+
+	mov	di, [box_x]
+	mov	dx, [di]
+	sub	dx, shootSpeed
+	mov	[di],dx
+
 
 .draw:
-        stdcall  Screen.bkgClear
-        stdcall  Chip.Draw, [x_pos], [y_pos]
-        stdcall  Box.Draw, [box_x], [box_y]
+	stdcall  Screen.bkgClear
+	stdcall  Chip.Draw, [x_pos], [y_pos]
+	stdcall  Box.Create, Boxes_coordinates
 .dontmove:
-        cmp     [box_x],  left_wall
-        jae      .shoot
+	cmp	dx, right_wall
+	jb	 .shoot
 .end:
-        ret
+	ret
 endp 
