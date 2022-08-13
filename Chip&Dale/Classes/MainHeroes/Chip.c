@@ -35,7 +35,22 @@ proc	Chip.Draw  uses es di ax cx,\
 	ret
 endp 
 
- 
+
+proc    Chip.PushBox,\
+        dir
+
+        cmp     [boxUpped], True
+        jne     .end
+        and     [boxUpped], False
+        stdcall Box.Shoot, [dir], [uppedBoxAdr], [uppedBoxAdr+2]
+        mov     di, [uppedBoxAdr]
+        mov     word[di], ZERO
+        mov     word[di+2], ZERO
+        mov     [uppedBoxID], 0
+
+.end:
+        ret
+endp 
 ;boxes <- coordinates of a single box on the field
 proc	Chip.GetBox  uses si di ax dx,\
 	boxes
@@ -82,10 +97,10 @@ proc	Chip.KeyMove  uses ax dx
 .S:
 	cmp	ax, KEY_S
 	jne	.A ; check S
-	mov	cl, [shiftState]	
-	xor	cl, True
-	mov	[shiftState], cl
-	;stdcall Chip.Move.Down, speed
+	;mov	cl, [shiftState]	
+	;xor	cl, True
+	;mov	[shiftState], cl
+	stdcall Chip.Move.Down, speed
 .A:
 	cmp	ax, KEY_A
 	jne	.W  ;Check A
@@ -128,15 +143,15 @@ proc	Phys.Contact uses ax cx dx,\
 	add	cl, availD
 .S:
 	mov	ax, [y]
-	add	ax, [height]
 	mov	dx, [obj_y]
-	cmp	ax, dx
-	ja	.A
-	sub	dx, [obj_h]  ; ax <- obj down; dx <- box front
-	inc	dx
-	sub	dx, sSpeed
+	sub	dx, [obj_h]
 	cmp	ax, dx
 	jb	.A
+	;sub	dx, [obj_h]  ; ax <- obj down; dx <- box front
+	;inc	dx
+	;sub	dx, sSpeed
+	;cmp	ax, dx
+	;jb	.A
 
 
 	mov	ax, [x]

@@ -44,7 +44,6 @@ proc	Chip.Move.Down uses ax dx,\
 	jnz	.dontmove
 
 	mov	dx, [y_pos]
-	add	dx, H
 	add	dx, [speed]
 	cmp	dx, y_floor
 	jae	.dontmove ; check floor

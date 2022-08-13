@@ -29,7 +29,7 @@ EntrypPoint:
 .Space:
 	cmp	ax, KEY_SPACE
 	jne	.upbox
-      ;  stdcall Phys.Jump
+	stdcall Phys.Jump
 
 .upbox: ; press Q
        stdcall PressQ
@@ -37,7 +37,7 @@ EntrypPoint:
 .moveKeys:
 	stdcall Chip.KeyMove
 
-       ; stdcall Phys.Falling
+	stdcall Phys.Falling
 	jmp	.Start
 
 
@@ -68,21 +68,7 @@ proc	Chip.ContactWithObjects uses si di,\
 endp
 
 
-proc	Chip.PushBox,\
-	dir
 
-	cmp	[boxUpped], True
-	jne	.end
-	and	[boxUpped], False
-	stdcall Box.Shoot, [dir], [uppedBoxAdr], [uppedBoxAdr+2]
-	mov	di, [uppedBoxAdr]
-	mov	word[di], ZERO
-	mov	word[di+2], ZERO
-	mov	[uppedBoxID], 0
-
-.end:
-	ret
-endp
 
 
 
@@ -155,7 +141,6 @@ proc	PressQ uses di
 				Boxes_coordinates, box_col, box_a,box_a
 	mov	[uppedBoxID], box_col
 	sub	[uppedBoxID], cl
-
 	; check if we can up box
 	xor	cx,cx
 	mov	cl, [contactFlag]
@@ -185,14 +170,14 @@ endp
 	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
-x_pos	dw 100
-y_pos	dw 149
+x_pos	dw 120
+y_pos	dw 49
 
 
 Boxes_coordinates   dw	150,149,\
 			50 ,149,\
-			125,130,\
-			75, 130
+			125,129,\
+			75, 129
 box_col=($-Boxes_coordinates)/4
 
 boxUpped	db	False
