@@ -28,6 +28,7 @@ proc	Phys.Jump uses ax dx
 	stdcall Chip.Draw, [x_pos], [y_pos]
 	stdcall Box.Create, Boxes_coordinates
 
+	
 	stdcall FlyMove
 .dontmove:
 	mov	ax, [jpLimY]

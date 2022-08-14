@@ -37,7 +37,7 @@ EntrypPoint:
 .moveKeys:
 	stdcall Chip.KeyMove
 
-       ; stdcall Phys.Falling
+	stdcall Phys.Falling
 	jmp	.Start
 
 
@@ -208,13 +208,19 @@ proc	FlyMove  uses	 ax
 	mov	ah, $01
 	int	16h
 	jz	.prev
+	mov	ah, $00
+	int	16h
+	movzx	ax, ah
+	mov	[prev_key], ax
 	cmp	ah, KEY_A
 	jne	@F
 	stdcall Chip.Move.Left, speed
+
 @@:
 	cmp	ah, KEY_D
 	jne	.end
 	stdcall Chip.Move.Right, speed
+
 .prev:
 	cmp	[prev_key], KEY_A
 	jne	@F
