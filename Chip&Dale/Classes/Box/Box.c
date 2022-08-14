@@ -18,16 +18,6 @@ endp
 
 proc    Box.Draw uses es di ax cx dx,\   ;drawing a single box 
         x,y
-     ;   mov     ax, [x]
-     ;   add     ax, box_a
-     ;   cmp     ax, right_wall
-     ;   jae     .end
-     ;   mov     ax, [y]
-     ;   add     ax, box_a
-     ;   cmp     [y], seil
-     ;   jbe     .end
-     ;   cmp     [x], left_wall
-     ;   jb      .end
 
         push    $A000
         pop     es

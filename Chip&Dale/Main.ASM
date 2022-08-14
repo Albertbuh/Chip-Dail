@@ -58,6 +58,7 @@ proc	Chip.ContactWithObjects uses si di,\
 	je	.skip
 	stdcall Phys.Contact, [x],[y], [h],[w],\
 			      [di], [di+2],[obj_h], [obj_w]
+
 	mov	dl, [contactFlag]
 	cmp	dl, 0
 	jne	.end
@@ -211,17 +212,17 @@ proc	FlyMove  uses	 ax
 	mov	ah, $00
 	int	16h
 	movzx	ax, ah
+	mov	dx, [prev_key]	; save previous dir to kick box right
 	mov	[prev_key], ax
-	cmp	ah, KEY_A
-	jne	@F
-	stdcall Chip.Move.Left, speed
 
-@@:
-	cmp	ah, KEY_D
-	jne	.end
-	stdcall Chip.Move.Right, speed
 
 .prev:
+	cmp	[prev_key], KEY_Q
+	jne	@F
+;============ Check the direction of fly ==================
+	stdcall     PushingBox
+;=========================================================
+@@:
 	cmp	[prev_key], KEY_A
 	jne	@F
 	stdcall Chip.Move.Left, speed
@@ -235,6 +236,19 @@ proc	FlyMove  uses	 ax
 	ret
 endp
 
+; in DX we need to put our key code before calling procedure
+proc	PushingBox
+	cmp	dx, KEY_D
+	jne	@F
+	stdcall Chip.PushBox, boxForward
+@@:
+	cmp	dx, KEY_A
+	jne	.end
+	stdcall Chip.PushBox, boxBack
+.end:
+	ret
+endp
+
 proc	PressQ uses di
 	cmp	ax, KEY_Q
 	jne	.end
@@ -242,14 +256,9 @@ proc	PressQ uses di
 	cmp    [boxUpped], True
 	jne	.checkLift
 ;case when we have box on head
-	cmp	[prev_key], KEY_D
-	jne	@F
-	stdcall Chip.PushBox, boxForward
-@@:
-	cmp	[prev_key], KEY_A
-	jne	.end
-	stdcall Chip.PushBox, boxBack
-	jmp	.end
+	mov   dx, [prev_key]
+	stdcall PushingBox
+	jmp .end
 ;case when we don't
 .checkLift:
 	stdcall Chip.ContactWithObjects, [x_pos],[y_pos], H,W,\
@@ -289,11 +298,15 @@ endp
 x_pos	dw 120
 y_pos	dw 49
 
-
+aboba = 109
 Boxes_coordinates   dw	150,149-box_a,\
 			150,149,\
-			125,129,\
-			75, 129
+			160, 149,\
+			170, 149,\
+			310-box_a,aboba,\
+			310-box_a*2,aboba,\
+			310-box_a*3,aboba,\
+			310-box_a*4,aboba
 box_col=($-Boxes_coordinates)/4
 
 boxUpped	db	False

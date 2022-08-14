@@ -42,7 +42,7 @@ proc    Chip.PushBox,\
         cmp     [boxUpped], True
         jne     .end
         and     [boxUpped], False
-        stdcall Box.Shoot, [dir], [uppedBoxAdr], [uppedBoxAdr+2]
+        stdcall Box.Shoot, [dir], [uppedBoxAdr]
         mov     di, [uppedBoxAdr]
         mov     word[di], ZERO
         mov     word[di+2], ZERO
@@ -109,7 +109,8 @@ proc	Chip.KeyMove  uses ax dx
 .W:
 	cmp	ax, KEY_W
 	jne	.end  ;check w :
-	;stdcall Chip.PushBox, boxUp
+	stdcall Chip.PushBox, boxUp
+	
 .end:
 	ret
 endp 
