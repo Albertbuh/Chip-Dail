@@ -43,16 +43,14 @@ EntrypPoint:
 
 .end:
 	ret
-
-; get position of main object, object's pointer
-;and the number of objects
-proc	Chip.ContactWithObjects uses si di,\
+;return position of first object to pick
+proc	Chip.FirstPickContact uses si di,\
 	x,y, h,w,\
 	objects, num_of_obj, obj_h, obj_w
 
 	mov	di, [objects]
 	mov	cx, [num_of_obj]
-
+	mov	[contactFlag], 0
 .checkObj:
 	cmp	[uppedBoxAdr], di
 	je	.skip
@@ -71,6 +69,26 @@ proc	Chip.ContactWithObjects uses si di,\
 
 	ret
 endp
+; get position of main object, object's pointer
+; and the number of objects
+proc	Chip.ContactWithObjects uses si di,\
+	x,y, h,w,\
+	objects, num_of_obj, obj_h, obj_w
+
+	mov	di, [objects]
+	mov	cx, [num_of_obj]
+	mov	[contactFlag], 0
+.checkObj:
+	cmp	[uppedBoxAdr], di
+	je	.skip
+	stdcall Phys.Contact, [x],[y], [h],[w],\
+			      [di], [di+2],[obj_h], [obj_w]
+.skip:
+	add	di, 4
+	loop	.checkObj
+.end:
+	ret
+endp
 
 ;with a single obj
 proc	Phys.Contact uses ax cx dx,\
@@ -79,6 +97,7 @@ proc	Phys.Contact uses ax cx dx,\
 
 	local sSpeed = physSpeed
 	xor   cx, cx
+	mov   cl, [contactFlag]
 .D:
 	mov	ax, [x]
 	add	ax, [weight]
@@ -261,7 +280,7 @@ proc	PressQ uses di
 	jmp .end
 ;case when we don't
 .checkLift:
-	stdcall Chip.ContactWithObjects, [x_pos],[y_pos], H,W,\
+	stdcall Chip.FirstPickContact, [x_pos],[y_pos], H,W,\
 				Boxes_coordinates, box_col, box_a,box_a
 	mov	[uppedBoxID], box_col
 	sub	[uppedBoxID], cl
@@ -295,8 +314,8 @@ endp
 	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
-x_pos	dw 120
-y_pos	dw 49
+x_pos	dw 160
+y_pos	dw 139
 
 aboba = 109
 Boxes_coordinates   dw	150,149-box_a,\

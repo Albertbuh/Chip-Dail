@@ -97,10 +97,10 @@ proc	Chip.KeyMove  uses ax dx
 .S:
 	cmp	ax, KEY_S
 	jne	.A ; check S
-	;mov	cl, [shiftState]	
-	;xor	cl, True
-	;mov	[shiftState], cl
-	stdcall Chip.Move.Down, speed
+	mov	cl, [shiftState]	
+	xor	cl, True
+	mov	[shiftState], cl
+	;stdcall Chip.Move.Down, speed
 .A:
 	cmp	ax, KEY_A
 	jne	.W  ;Check A
