@@ -36,20 +36,20 @@ proc	Chip.Draw  uses es di ax cx,\
 endp 
 
 
-proc    Chip.PushBox,\
-        dir
+proc	Chip.PushBox,\
+	dir
 
-        cmp     [boxUpped], True
-        jne     .end
-        and     [boxUpped], False
-        stdcall Box.Shoot, [dir], [uppedBoxAdr]
-        mov     di, [uppedBoxAdr]
-        mov     word[di], ZERO
-        mov     word[di+2], ZERO
-        mov     [uppedBoxID], 0
+	cmp	[boxUpped], True
+	jne	.end
+	and	[boxUpped], False
+	stdcall Box.Shoot, [dir], [uppedBoxAdr]
+	mov	di, [uppedBoxAdr]
+	mov	word[di], ZERO
+	mov	word[di+2], ZERO
+	mov	[uppedBoxID], 0
 
 .end:
-        ret
+	ret
 endp 
 ;boxes <- coordinates of a single box on the field
 proc	Chip.GetBox  uses si di ax dx,\
@@ -86,17 +86,20 @@ endp
 proc	Chip.KeyMove  uses ax dx
 	local const_two = 2
 
-	stdcall Chip.ContactWithObjects, [x_pos],[y_pos], H,W,\
+	stdcall Chip.ContactWithObjects, [x_pos], [y_pos], H,W,\
 				Boxes_coordinates, box_col, box_a,box_a
 
 .D:
 	cmp	ax, KEY_D
 	jne	 .S ;check D
-	mov	[prev_key], ax 
+	mov	[prev_key], ax 	
 	stdcall Chip.Move.Right, speed
+
 .S:
 	cmp	ax, KEY_S
 	jne	.A ; check S
+	cmp	[boxUpped], True
+	je	.A
 	mov	cl, [shiftState]	
 	xor	cl, True
 	mov	[shiftState], cl
@@ -112,8 +115,29 @@ proc	Chip.KeyMove  uses ax dx
 	stdcall Chip.PushBox, boxUp
 	
 .end:
+	
 	ret
 endp 
 
 
+; get position of main object, object's pointer
+; and the number of objects
+proc	Chip.ContactWithObjects uses si di,\
+	x,y, h,w,\
+	objects, num_of_obj, obj_h, obj_w
+
+	mov	di, [objects]
+	mov	cx, [num_of_obj]
+	mov	[contactFlag], 0
+.checkObj:
+	cmp	[uppedBoxAdr], di
+	je	.skip
+	stdcall Phys.Contact, [x],[y], [h],[w],\
+			      [di], [di+2],[obj_h], [obj_w]
+.skip:
+	add	di, 4
+	loop	.checkObj
+.end:
+	ret
+endp  
 

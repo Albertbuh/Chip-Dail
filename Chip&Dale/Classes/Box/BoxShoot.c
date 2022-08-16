@@ -48,6 +48,8 @@ proc	Box.ShootForward uses si di,\
 .end:
 	ret
 endp
+	
+
 
 proc	Box.ShootUp uses si di,\
 	boxAdr

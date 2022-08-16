@@ -36,8 +36,8 @@ EntrypPoint:
 
 .moveKeys:
 	stdcall Chip.KeyMove
-
 	stdcall Phys.Falling
+
 	jmp	.Start
 
 
@@ -69,23 +69,92 @@ proc	Chip.FirstPickContact uses si di,\
 
 	ret
 endp
-; get position of main object, object's pointer
-; and the number of objects
-proc	Chip.ContactWithObjects uses si di,\
-	x,y, h,w,\
-	objects, num_of_obj, obj_h, obj_w
 
-	mov	di, [objects]
-	mov	cx, [num_of_obj]
-	mov	[contactFlag], 0
-.checkObj:
-	cmp	[uppedBoxAdr], di
-	je	.skip
-	stdcall Phys.Contact, [x],[y], [h],[w],\
-			      [di], [di+2],[obj_h], [obj_w]
-.skip:
+
+proc	FlyMove  uses	 ax
+
+	mov	ah, $01
+	int	16h
+	jz	.prev
+	mov	ah, $00
+	int	16h
+	movzx	ax, ah
+	mov	dx, [prev_key]	; save previous dir to kick box right
+	mov	[prev_key], ax
+.prev:
+	cmp	[prev_key], KEY_Q
+	jne	@F
+;============ Check the direction of fly ==================
+       ; stdcall     PushingBox
+       and     [boxUpped], False
+	mov	di, [uppedBoxAdr]
+	mov	dx, [di]
+	add	dx, 15
+	mov	[di], dx
+;=========================================================
+@@:
+	cmp	[prev_key], KEY_A
+	jne	@F
+	stdcall Chip.Move.Left, speed
+@@:
+	cmp	[prev_key], KEY_D
+	jne	.end
+	stdcall Chip.Move.Right, speed
+.end:
+	ret
+endp
+
+; in DX we need to put our key code before calling procedure
+proc	PushingBox
+	cmp	dx, KEY_D
+	jne	@F
+	stdcall Chip.PushBox, boxForward
+
+@@:
+	cmp	dx, KEY_A
+	jne	.end
+	stdcall Chip.PushBox, boxBack
+.end:
+	ret
+endp
+
+proc	PressQ uses di
+	cmp	ax, KEY_Q
+	jne	.end
+
+	cmp    [boxUpped], True
+	jne	.checkLift
+;case when we have box on head
+	mov   dx, [prev_key]
+	stdcall PushingBox
+	jmp .end
+;case when we don't
+.checkLift:
+	 stdcall CheckLift
+.end:
+
+	 ret
+endp
+
+proc	CheckLift
+     stdcall Chip.FirstPickContact, [x_pos],[y_pos], H,W,\
+				Boxes_coordinates, box_col, box_a,box_a
+	mov	[uppedBoxID], box_col
+	sub	[uppedBoxID], cl
+	; check if we can up box
+	xor	cx,cx
+	mov	cl, [contactFlag]
+	test	cl, availA+availD
+	jz     .end
+
+	;find the box we can up
+	mov	di, Boxes_coordinates
+	mov	cl, [uppedBoxID]
+@@:
 	add	di, 4
-	loop	.checkObj
+	loop	@B
+	stdcall Chip.GetBox, di
+	mov	[boxUpped], True
 .end:
 	ret
 endp
@@ -96,6 +165,7 @@ proc	Phys.Contact uses ax cx dx,\
 	obj_x, obj_y, obj_h, obj_w
 
 	local sSpeed = physSpeed
+
 	xor   cx, cx
 	mov   cl, [contactFlag]
 .D:
@@ -103,8 +173,10 @@ proc	Phys.Contact uses ax cx dx,\
 	add	ax, [weight]
 	mov	dx, [obj_x]
 	cmp	ax, dx
-	jne	.S
-
+	jb     .S
+	add	dx, [obj_w]
+	cmp	ax, dx
+	ja	.S
 
 	mov	ax, [y]
 	sub	ax, [height] ;upper bound of hero
@@ -122,6 +194,8 @@ proc	Phys.Contact uses ax cx dx,\
 .S:
 	mov	ax, [y]
 	mov	dx, [obj_y]
+	cmp	ax, dx
+	ja	.A
 	sub	dx, [obj_h]
 	cmp	ax, dx
 	jb	.A
@@ -152,9 +226,12 @@ proc	Phys.Contact uses ax cx dx,\
 .A:
 	mov	ax, [x]
 	mov	dx, [obj_x]
+	cmp	ax, dx
+	jb	.W
 	add	dx, [obj_w]
 	cmp	ax, dx
-	jne	.W
+	ja     .W
+
 
 
 	mov	ax, [y]
@@ -171,22 +248,22 @@ proc	Phys.Contact uses ax cx dx,\
 	jnz	.W
 	add	cl, availA
 .W:
-	mov	ax, [y]
-	mov	dx, [obj_y]
-	cmp	ax, dx
-	jne	.end
+     ;	 mov	 ax, [y]
+     ;	 mov	 dx, [obj_y]
+     ;	 cmp	 ax, dx
+     ;	 jne	 .end
 
-	mov	ax, [x]
-	mov	dx, [obj_x]
-	cmp	ax,dx
-	jae	@F
-	sub	dx, ax
-	cmp	dx,  [weight]
-	jb	.end
+     ;	 mov	 ax, [x]
+     ;	 mov	 dx, [obj_x]
+     ;;   cmp	  ax,dx
+     ;	 jae	 @F
+     ;	 sub	 dx, ax
+     ;;   cmp	  dx,  [weight]
+     ;	 jb	 .end
 @@:
-	sub	ax, dx
-	cmp	ax, [obj_w]
-	jb	.end
+      ;  sub	 ax, dx
+       ; cmp	 ax, [obj_w]
+       ; jb	 .end
 
        ; test	 cl, availW
        ; jnz	 .end
@@ -200,112 +277,6 @@ endp
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-proc	FlyMove  uses	 ax
-
-	mov	ah, $01
-	int	16h
-	jz	.prev
-	mov	ah, $00
-	int	16h
-	movzx	ax, ah
-	mov	dx, [prev_key]	; save previous dir to kick box right
-	mov	[prev_key], ax
-
-
-.prev:
-	cmp	[prev_key], KEY_Q
-	jne	@F
-;============ Check the direction of fly ==================
-	stdcall     PushingBox
-;=========================================================
-@@:
-	cmp	[prev_key], KEY_A
-	jne	@F
-	stdcall Chip.Move.Left, speed
-@@:
-	cmp	[prev_key], KEY_D
-	jne	.end
-	stdcall Chip.Move.Right, speed
-
-.end:
-
-	ret
-endp
-
-; in DX we need to put our key code before calling procedure
-proc	PushingBox
-	cmp	dx, KEY_D
-	jne	@F
-	stdcall Chip.PushBox, boxForward
-@@:
-	cmp	dx, KEY_A
-	jne	.end
-	stdcall Chip.PushBox, boxBack
-.end:
-	ret
-endp
-
-proc	PressQ uses di
-	cmp	ax, KEY_Q
-	jne	.end
-
-	cmp    [boxUpped], True
-	jne	.checkLift
-;case when we have box on head
-	mov   dx, [prev_key]
-	stdcall PushingBox
-	jmp .end
-;case when we don't
-.checkLift:
-	stdcall Chip.FirstPickContact, [x_pos],[y_pos], H,W,\
-				Boxes_coordinates, box_col, box_a,box_a
-	mov	[uppedBoxID], box_col
-	sub	[uppedBoxID], cl
-	; check if we can up box
-	xor	cx,cx
-	mov	cl, [contactFlag]
-	test	cl, availA+availD
-	jz     .end
-
-	;find the box we can up
-	mov	di, Boxes_coordinates
-	mov	cl, [uppedBoxID]
-@@:
-	add	di, 4
-	loop	@B
-	stdcall Chip.GetBox, di
-       ; mov	 [uppedBoxAdr], di
-	mov	[boxUpped], True
-.end:
-
-	 ret
-endp
-
-
-
 	include 'units\Keyboard\Keyboard.c'
 	include 'units\Screen\Screen.c'
 	include 'classes\MainHeroes\Chip.c'
@@ -314,6 +285,7 @@ endp
 	include 'classes\Box\BoxShoot.c'
 	include 'units\Phys\Falling.c'
 	include 'units\Phys\Jump.c'
+      ;  include 'units\Phys\Contact.c'
 x_pos	dw 160
 y_pos	dw 139
 
@@ -325,7 +297,11 @@ Boxes_coordinates   dw	150,149-box_a,\
 			310-box_a,aboba,\
 			310-box_a*2,aboba,\
 			310-box_a*3,aboba,\
-			310-box_a*4,aboba
+			310-box_a*4,aboba,\
+			310-box_a,aboba-60,\
+			310-box_a*2,aboba-60,\
+			310-box_a*3,aboba-60,\
+			310-box_a*4,aboba -60
 box_col=($-Boxes_coordinates)/4
 
 boxUpped	db	False
