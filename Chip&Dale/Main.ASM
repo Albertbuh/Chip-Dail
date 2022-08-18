@@ -24,15 +24,19 @@ EntrypPoint:
 proc	Timer
 	locals
 	    wOldSec	dw	?
-	    RepSec	db     2
+	    RepSec	dq     1.2
+	    FloatSec	dw     ?
 	endl
-
 .cycle:
 	mov	ah, $2C
 	int	21h
-	movzx	ax, dl
-	div	[RepSec]
-	movzx	dx, al
+	movzx	dx, dl
+	mov	[FloatSec], dx
+	fild	 [FloatSec]
+	fdiv	 [RepSec]
+	fistp	   [FloatSec]
+	xor	  dx,dx
+	mov	  dx, [FloatSec]
 	cmp	[wOldSec], dx
 	je	.skip
 	mov	[wOldSec], dx
@@ -43,7 +47,6 @@ proc	Timer
 
 
 	stdcall KeyModel
-
 
 .next:
 	stdcall BoxShoot
@@ -58,12 +61,14 @@ proc	Timer
 
 
 .skip:
-
-
+	stdcall KeyModel
 	cmp	ax, QUIT
 	jne	.cycle
 	ret
 endp
+
+ABOBA:
+	ret
 
 proc	BoxShoot
 	cmp	[BoxFly], True
@@ -71,6 +76,8 @@ proc	BoxShoot
 	cmp	[boxDir], KEY_W
 	jne	.pressD
 	stdcall Box.MoveUp, [uppedBoxAdr]
+	cmp	dx,  y_floor
+	jbe	.end
 .pressD:
 	cmp	[boxDir], KEY_D
 	jne	.pressA
@@ -209,8 +216,8 @@ endp
 	include 'classes\MainHeroes\Chip.Move.c'
 	include 'classes\Box\Box.c'
 	include 'classes\Box\BoxShoot.c'
-	include 'units\Phys\Falling.c'
-	include 'units\Phys\Jump.c'
+      ;  include 'units\Phys\Falling.c'
+      ;  include 'units\Phys\Jump.c'
 	include 'units\Phys\Contact.c'
 	include    'classes\KeyPress.c'
 x_pos	dw 10

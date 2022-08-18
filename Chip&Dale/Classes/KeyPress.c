@@ -12,7 +12,7 @@ proc	KeyModel	;uses dx
 
 	mov	dx, [prev_key]
 	cmp	ax, KEY_SPACE
-	je	.KeyCheck
+	je	.pressSpace
 	mov	[prev_key], ax
 .KeyCheck:
 .pressESC:
@@ -53,6 +53,7 @@ proc	KeyModel	;uses dx
 	jne	.pressSpace
 	stdcall	Chip.KeyMove
 .pressSpace:
+	
 	cmp     ax, KEY_SPACE
         jne     .pressW
         mov     [JumpFlag], True

@@ -131,17 +131,15 @@ endp
 
 proc	Box.MoveForward uses di,\
 	boxAdr
-	local	ShootSpeed = 15
 	mov	di, [boxAdr]
 	mov	dx, [di]
-	add	dx, ShootSpeed
+	add	dx, shootSpeed
 	mov	[di], dx
 	ret
 endp
 
 proc	Box.MoveBack uses di,\
 	boxAdr
-	local	shootSpeed = 15
 	mov	di, [boxAdr]
 	mov	dx, [di]
 	sub	dx, shootSpeed
@@ -151,7 +149,6 @@ endp
 
 proc	Box.MoveUp uses di,\
 	boxAdr
-	local	shootSpeed = 15
 	mov	di, [boxAdr]
 	add	di, 2
 	mov	dx, [di]
