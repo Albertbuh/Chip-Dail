@@ -4,6 +4,7 @@ proc    Phys.Contact uses ax cx dx,\
         obj_x, obj_y, obj_h, obj_w
 
         local sSpeed = physSpeed
+
         xor   cx, cx
         mov   cl, [contactFlag]
 .D:
@@ -11,8 +12,10 @@ proc    Phys.Contact uses ax cx dx,\
         add     ax, [weight]
         mov     dx, [obj_x]
         cmp     ax, dx
-        jne     .S
-
+        jb     .S
+        add     dx, [obj_w]
+        cmp     ax, dx
+        ja      .S
 
         mov     ax, [y]
         sub     ax, [height] ;upper bound of hero
@@ -30,6 +33,8 @@ proc    Phys.Contact uses ax cx dx,\
 .S:
         mov     ax, [y]
         mov     dx, [obj_y]
+        cmp     ax, dx
+        ja      .A
         sub     dx, [obj_h]
         cmp     ax, dx
         jb      .A
@@ -60,9 +65,12 @@ proc    Phys.Contact uses ax cx dx,\
 .A:
         mov     ax, [x]
         mov     dx, [obj_x]
+        cmp     ax, dx
+        jb      .W
         add     dx, [obj_w]
         cmp     ax, dx
-        jne     .W
+        ja     .W
+
 
 
         mov     ax, [y]
@@ -79,22 +87,22 @@ proc    Phys.Contact uses ax cx dx,\
         jnz     .W
         add     cl, availA
 .W:
-        mov     ax, [y]
-        mov     dx, [obj_y]
-        cmp     ax, dx
-        jne     .end
+     ;   mov     ax, [y]
+     ;   mov     dx, [obj_y]
+     ;   cmp     ax, dx
+     ;   jne     .end
 
-        mov     ax, [x]
-        mov     dx, [obj_x]
-        cmp     ax,dx
-        jae     @F
-        sub     dx, ax
-        cmp     dx,  [weight]
-        jb      .end
+     ;   mov     ax, [x]
+     ;   mov     dx, [obj_x]
+     ;;   cmp     ax,dx
+     ;   jae     @F
+     ;   sub     dx, ax
+     ;;   cmp     dx,  [weight]
+     ;   jb      .end
 @@:
-        sub     ax, dx
-        cmp     ax, [obj_w]
-        jb      .end
+      ;  sub     ax, dx
+       ; cmp     ax, [obj_w]
+       ; jb      .end
 
        ; test    cl, availW
        ; jnz     .end
@@ -103,7 +111,4 @@ proc    Phys.Contact uses ax cx dx,\
 
         mov     [contactFlag], cl
         ret
-endp
-
-
-        
+endp   

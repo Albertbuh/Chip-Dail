@@ -36,7 +36,7 @@ proc	Chip.Draw  uses es di ax cx,\
 endp 
 
 
-proc	Chip.PushBox,\
+proc	Chip.PushBox uses ax,\
 	dir
 
 	cmp	[boxUpped], True
@@ -92,7 +92,7 @@ proc	Chip.KeyMove  uses ax dx
 .D:
 	cmp	ax, KEY_D
 	jne	 .S ;check D
-	mov	[prev_key], ax 	
+	mov	[prev_key], ax
 	stdcall Chip.Move.Right, speed
 
 .S:
@@ -141,3 +141,29 @@ proc	Chip.ContactWithObjects uses si di,\
 	ret
 endp  
 
+;return position of first object to pick
+proc    Chip.FirstPickContact uses si di,\
+        x,y, h,w,\
+        objects, num_of_obj, obj_h, obj_w
+
+        mov     di, [objects]
+        mov     cx, [num_of_obj]
+        mov     [contactFlag], 0
+.checkObj:
+        cmp     [uppedBoxAdr], di
+        je      .skip
+        stdcall Phys.Contact, [x],[y], [h],[w],\
+                              [di], [di+2],[obj_h], [obj_w]
+
+        mov     dl, [contactFlag]
+        cmp     dl, 0
+        jne     .end
+.skip:
+        add     di, 4
+
+        loop    .checkObj
+
+.end:
+
+        ret
+endp 

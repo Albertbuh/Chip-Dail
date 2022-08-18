@@ -31,15 +31,18 @@ proc	Box.ShootForward uses si di,\
 	je	.dontmove
 	mov	[wOldSec], dx
 
-	mov	di, [boxAdr]
-	mov	dx, [di]
-	add	dx, shootSpeed
-	mov	[di], dx
+	stdcall	Box.MoveForward, [boxAdr]
 
 	stdcall  Screen.bkgClear
 	stdcall  Chip.Draw, [x_pos], [y_pos] 
 	stdcall  Box.Create, Boxes_coordinates
        
+	cmp	dx, right_wall
+	jae	.end
+	and	[prev_key], 0
+	stdcall	KeyModel
+	cmp	ax, QUIT
+	je	.end
 .dontmove:
 
 	cmp	dx, right_wall
@@ -75,6 +78,12 @@ proc	Box.ShootUp uses si di,\
 	stdcall  Chip.Draw, [x_pos], [y_pos] 
 	stdcall  Box.Create, Boxes_coordinates
        
+	cmp	dx, seil
+	jb	.end
+	and	[prev_key], 0
+	stdcall	KeyModel
+	cmp	ax, QUIT
+	je	.end
 .dontmove:
 
 	cmp	dx, seil
@@ -99,19 +108,55 @@ proc	Box.ShootBack ,\
 
 	mov	[wOldSec], dx
 
-	mov	di, [boxAdr]
-	mov	dx, [di]
-	sub	dx, shootSpeed
-	mov	[di],dx
+	stdcall	Box.MoveBack, [boxAdr]
 
 
 .draw:
 	stdcall  Screen.bkgClear
 	stdcall  Chip.Draw, [x_pos], [y_pos]
 	stdcall  Box.Create, Boxes_coordinates
+
+	cmp	dx, right_wall
+	jae	.end
+	and	[prev_key], 0
+	stdcall	KeyModel
+	cmp	ax, QUIT
+	je	.end
 .dontmove:
 	cmp	dx, right_wall
 	jb	 .shoot
 .end:
 	ret
 endp 
+
+proc	Box.MoveForward uses di,\
+	boxAdr
+	local	ShootSpeed = 15
+	mov	di, [boxAdr]
+	mov	dx, [di]
+	add	dx, ShootSpeed
+	mov	[di], dx
+	ret
+endp
+
+proc	Box.MoveBack uses di,\
+	boxAdr
+	local	shootSpeed = 15
+	mov	di, [boxAdr]
+	mov	dx, [di]
+	sub	dx, shootSpeed
+	mov	[di], dx
+	ret
+endp
+
+proc	Box.MoveUp uses di,\
+	boxAdr
+	local	shootSpeed = 15
+	mov	di, [boxAdr]
+	add	di, 2
+	mov	dx, [di]
+	sub	dx, shootSpeed
+	mov	[di], dx
+	ret
+endp
+

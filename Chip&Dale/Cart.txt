@@ -1,29 +1,62 @@
 .Start:
+        jmp     .A
         stdcall Screen.bkgClear
         stdcall Chip.Draw, [x_pos], [y_pos]
-        stdcall Box.CanBeLifted
-        cmp     [boxUpped], True
-        je      @F
-        stdcall Box.Draw, [box_x], [box_y]
-@@:
-        stdcall Keyboard.KeyPress ; ax <- key
+        stdcall Box.Create, Boxes_coordinates
 
 
-        cmp     ax, KEY_SPACE
-        jne     @F
-        stdcall Phys.Jump
-        stdcall Phys.Falling
-@@:
-        cmp     ax, KEY_Q
-        jne     @F
-        cmp     [canLift], 1
-        jne     @F
-        stdcall Chip.GetBox
+        stdcall Keyboard.KeyPressInt16
 
-@@:
+.Esc:
         cmp     ax, KEY_ESCAPE
         je      .end
-        stdcall Chip.Move
+.Space:
+        cmp     ax, KEY_SPACE
+        jne     .upbox
+        stdcall Phys.Jump
+       ; mov      [JumpFlag], True
+.upbox: ; press Q
+       stdcall PressQ
+       cmp     ax, QUIT
+       je      .end
+.moveKeys:
+        stdcall Chip.KeyMove
+
+        stdcall Phys.Falling
+@@:
+        cmp    ax, QUIT
+        jne     .Start
 
 
-        loop    .Start  
+
+; in DX we need to put our key code before calling procedure
+proc    PushingBox
+        cmp     dx, KEY_D
+        jne     @F
+        stdcall Chip.PushBox, boxForward
+
+@@:
+        cmp     dx, KEY_A
+        jne     .end
+        stdcall Chip.PushBox, boxBack
+.end:
+        ret
+endp
+
+proc    PressQ uses di
+        cmp     ax, KEY_Q
+        jne     .end
+
+        cmp    [boxUpped], True
+        jne     .checkLift
+;case when we have box on head
+        mov   dx, [prev_key]
+        stdcall PushingBox
+        jmp .end
+;case when we don't
+.checkLift:
+         stdcall CheckLift
+.end:
+
+         ret
+endp    

@@ -20,8 +20,6 @@ proc	Phys.Falling
 	mov	cl, [contactFlag]
 	test	cl, availS
 	jnz	.slowdown
-	;cmp	cl, 0
-	;jne	.slowdown
 
 	add	dx, fallSpeed
 	stdcall Chip.ContactWithObjects, [x_pos], dx, H,W,\
@@ -37,10 +35,14 @@ proc	Phys.Falling
 	stdcall Screen.bkgClear
 	stdcall Chip.Draw, [x_pos], [y_pos]
 	stdcall Box.Create, Boxes_coordinates
-	stdcall FlyMove
+	
+	
+	stdcall	KeyModel
+	cmp	ax, QUIT
+	je	.end
+	
 .dontmove:
 	jmp .down
-	;ret
 ;small distance between ground and legs
 
 .slowdown:

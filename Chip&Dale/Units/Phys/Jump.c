@@ -29,7 +29,9 @@ proc	Phys.Jump uses ax dx
 	stdcall Box.Create, Boxes_coordinates
 
 	
-	stdcall FlyMove
+	stdcall	KeyModel
+	cmp	ax, QUIT
+	je	.end
 .dontmove:
 	mov	ax, [jpLimY]
 	cmp	[y_pos], ax
