@@ -36,21 +36,7 @@ proc	Chip.Draw  uses es di ax cx,\
 endp 
 
 
-proc	Chip.PushBox uses ax,\
-	dir
 
-	cmp	[boxUpped], True
-	jne	.end
-	and	[boxUpped], False
-	stdcall Box.Shoot, [dir], [uppedBoxAdr]
-	mov	di, [uppedBoxAdr]
-	mov	word[di], ZERO
-	mov	word[di+2], ZERO
-	mov	[uppedBoxID], 0
-
-.end:
-	ret
-endp 
 ;boxes <- coordinates of a single box on the field
 proc	Chip.GetBox  uses si di ax dx,\
 	boxes
@@ -100,20 +86,14 @@ proc	Chip.KeyMove  uses ax dx
 	jne	.A ; check S
 	cmp	[boxUpped], True
 	je	.A
-	mov	cl, [shiftState]	
-	xor	cl, True
-	mov	[shiftState], cl
-	;stdcall Chip.Move.Down, speed
+	xor 	[shiftState], True
+	xor	[boxUppedAvail], True
 .A:
 	cmp	ax, KEY_A
-	jne	.W  ;Check A
+	jne	.end  ;Check A
 	mov	[prev_key], ax 
 	stdcall Chip.Move.Left, speed
-.W:
-	cmp	ax, KEY_W
-	jne	.end  ;check w :
-	stdcall Chip.PushBox, boxUp
-	
+
 .end:
 	
 	ret
@@ -165,5 +145,30 @@ proc    Chip.FirstPickContact uses si di,\
 
 .end:
 
+        ret
+endp 
+
+
+
+proc    CheckLift  uses di cx
+     stdcall Chip.FirstPickContact, [x_pos],[y_pos], H,W,\
+                                Boxes_coordinates, box_col, box_a,box_a
+        mov     [uppedBoxID], box_col
+        sub     [uppedBoxID], cl
+        ; check if we can up box
+        xor     cx,cx
+        mov     cl, [contactFlag]
+        test    cl, availA+availD
+        jz     .end
+
+        ;find the box we can up
+        mov     di, Boxes_coordinates
+        mov     cl, [uppedBoxID]
+@@:
+        add     di, 4
+        loop    @B
+        stdcall Chip.GetBox, di
+        mov     [boxUpped], True
+.end:
         ret
 endp 

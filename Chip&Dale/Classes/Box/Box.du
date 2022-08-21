@@ -1,2 +1,6 @@
-box_x	dw	200
-box_y	dw	149
+boxUpped        db      False
+uppedBoxID      db      0
+uppedBoxAdr dw          0
+BoxFly  db      False
+boxDir  dw      ?
+boxUppedAvail   db True  

@@ -1,132 +1,30 @@
-proc	Box.Shoot uses si di,\
-	dir, boxAdr ; 0-up, 1-forward, 2-back; boxAdr - adr of upped box X coordinate
 
-	
-	cmp [dir], boxUp
-	jne @F
-	stdcall Box.ShootUp, [boxAdr]
+proc    BoxShoot
+        cmp     [BoxFly], True
+        jne     .end
+        cmp     [boxDir], KEY_W
+        jne     .pressD
+        stdcall Box.MoveUp, [uppedBoxAdr]
+        cmp     dx,  y_floor
+        jbe     .end
+.pressD:
+        cmp     [boxDir], KEY_D
+        jne     .pressA
+        stdcall Box.MoveForward, [uppedBoxAdr]
+.pressA:
+        cmp     [boxDir], KEY_A
+        jne     @F
+        stdcall Box.MoveBack, [uppedBoxAdr]
 @@:
-	cmp [dir], boxForward
-	jne @F
-	stdcall Box.ShootForward, [boxAdr]
-@@:
-	cmp [dir], boxBack
-	jne .end
-	stdcall Box.ShootBack, [boxAdr]
+        cmp     dx, right_wall
+        jb      .end
+        mov     di, [uppedBoxAdr]
+        mov     word[di], ZERO
+        mov     word[di+2], ZERO
+        mov     [uppedBoxID], 0
+        mov     [BoxFly], False
 .end:
-	ret
-endp
-
-proc	Box.ShootForward uses si di,\
-	boxAdr
-	locals
-		shootSpeed = 15
-		wOldSec    dw ?
-	endl
-.shoot:
-	mov	ah, $2c
-	int	21h
-	movzx	  dx, dl
-	cmp	[wOldSec], dx
-	je	.dontmove
-	mov	[wOldSec], dx
-
-	stdcall	Box.MoveForward, [boxAdr]
-
-	stdcall  Screen.bkgClear
-	stdcall  Chip.Draw, [x_pos], [y_pos] 
-	stdcall  Box.Create, Boxes_coordinates
-       
-	cmp	dx, right_wall
-	jae	.end
-	and	[prev_key], 0
-	stdcall	KeyModel
-	cmp	ax, QUIT
-	je	.end
-.dontmove:
-
-	cmp	dx, right_wall
-	jb	.shoot
-
-.end:
-	ret
-endp
-	
-
-
-proc	Box.ShootUp uses si di,\
-	boxAdr
-	locals
-		shootSpeed = 15
-		wOldSec    dw ?
-	endl
-.shoot:
-	mov	ah, $2c
-	int	21h
-	movzx	  dx, dl
-	cmp	[wOldSec], dx
-	je	.dontmove
-	mov	[wOldSec], dx
-
-	mov	di, [boxAdr]
-	add	di, 2
-	mov	dx, [di]
-	sub	dx, shootSpeed
-	mov	[di], dx
-
-	stdcall  Screen.bkgClear
-	stdcall  Chip.Draw, [x_pos], [y_pos] 
-	stdcall  Box.Create, Boxes_coordinates
-       
-	cmp	dx, seil
-	jb	.end
-	and	[prev_key], 0
-	stdcall	KeyModel
-	cmp	ax, QUIT
-	je	.end
-.dontmove:
-
-	cmp	dx, seil
-	jae	.shoot
-
-.end:
-	ret
-endp
-
-proc	Box.ShootBack ,\
-	boxAdr
-	locals
-		shootSpeed = 15
-		wOldSec    dw ?
-	endl
-.shoot:
-	mov	ah, $2c
-	int	21h
-	movzx	  dx, dl
-	cmp	[wOldSec], dx
-	je	.dontmove
-
-	mov	[wOldSec], dx
-
-	stdcall	Box.MoveBack, [boxAdr]
-
-
-.draw:
-	stdcall  Screen.bkgClear
-	stdcall  Chip.Draw, [x_pos], [y_pos]
-	stdcall  Box.Create, Boxes_coordinates
-
-	cmp	dx, right_wall
-	jae	.end
-	and	[prev_key], 0
-	stdcall	KeyModel
-	cmp	ax, QUIT
-	je	.end
-.dontmove:
-	cmp	dx, right_wall
-	jb	 .shoot
-.end:
-	ret
+        ret
 endp 
 
 proc	Box.MoveForward uses di,\
