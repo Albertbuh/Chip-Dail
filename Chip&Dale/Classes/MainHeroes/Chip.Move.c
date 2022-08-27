@@ -1,5 +1,6 @@
-proc	Chip.Move.Left uses ax cx dx,\
+proc	Chip.Move.Left uses ax cx bx dx,\
 	speed
+	
 	
 	mov	ax, [x_pos]
 	xor     cx,cx
@@ -16,8 +17,9 @@ proc	Chip.Move.Left uses ax cx dx,\
 	ret
 endp
 
-proc	Chip.Move.Right uses ax cx dx,\
+proc	Chip.Move.Right uses ax cx bx dx,\
 	speed
+	
 	
 	mov	ax, [x_pos]
 
@@ -35,8 +37,9 @@ proc	Chip.Move.Right uses ax cx dx,\
 	ret
 endp
 
-proc	Chip.Move.Down uses ax dx,\
+proc	Chip.Move.Down uses ax bx dx,\
 	speed
+	
 	
 	xor     cx,cx
         mov     cl, [contactFlag]

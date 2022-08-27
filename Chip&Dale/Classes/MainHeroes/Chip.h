@@ -1,4 +1,4 @@
-W=15
+W=20
 H=20
 color=$02  
 speed=5

@@ -1,7 +1,7 @@
 ;with a single obj
 proc    Phys.Contact uses ax cx dx,\
-        x,y,height, weight,\
-        obj_x, obj_y, obj_h, obj_w
+        x,y,weight, height,\
+        obj_x, obj_y, obj_w, obj_h
 
         local sSpeed = physSpeed
 

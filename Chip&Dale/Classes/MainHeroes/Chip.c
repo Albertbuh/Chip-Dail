@@ -16,15 +16,16 @@ proc	Chip.Draw  uses es di ax cx,\
 	je	.draw
 	mov	cx, H ; shift not pressed
 
-	;draw	model
 .draw:
-	push	cx
-	mov	cx, W
-	rep	stosb
-	sub	di, 320+W
-	pop	cx
-	loop	.draw		 
+	;push	cx
+	;mov	cx, W
+	;rep	stosb
+	;sub	di, 320+W
+	;;pop	cx
+	;loop	.draw			 
 
+	
+	stdcall bmp_read, [ChipImgAdr], [x_pos], [y_pos]
 	cmp	[boxUpped], False
 	je	.end
 	stdcall Chip.GetBox, [uppedBoxAdr]
@@ -69,12 +70,14 @@ endp
 
 
 
-proc	Chip.KeyMove  uses ax dx
+proc	Chip.KeyMove  uses ax dx bx
 	local const_two = 2
 
+	
 	stdcall Chip.ContactWithObjects, [x_pos], [y_pos], H,W,\
-				Boxes_coordinates, box_col, box_a,box_a
+				Boxes_coordinates, box_col, box_x,box_y
 
+	
 .D:
 	cmp	ax, KEY_D
 	jne	 .S ;check D
@@ -86,7 +89,7 @@ proc	Chip.KeyMove  uses ax dx
 	jne	.A ; check S
 	cmp	[boxUpped], True
 	je	.A
-	xor 	[shiftState], True
+	xor	[shiftState], True
 	xor	[boxUppedAvail], True
 .A:
 	cmp	ax, KEY_A
@@ -95,7 +98,7 @@ proc	Chip.KeyMove  uses ax dx
 	stdcall Chip.Move.Left, speed
 
 .end:
-	
+	stdcall ViewUpdate
 	ret
 endp 
 
@@ -122,53 +125,53 @@ proc	Chip.ContactWithObjects uses si di,\
 endp  
 
 ;return position of first object to pick
-proc    Chip.FirstPickContact uses si di,\
-        x,y, h,w,\
-        objects, num_of_obj, obj_h, obj_w
+proc	Chip.FirstPickContact uses si di,\
+	x,y, h,w,\
+	objects, num_of_obj, obj_h, obj_w
 
-        mov     di, [objects]
-        mov     cx, [num_of_obj]
-        mov     [contactFlag], 0
+	mov	di, [objects]
+	mov	cx, [num_of_obj]
+	mov	[contactFlag], 0
 .checkObj:
-        cmp     [uppedBoxAdr], di
-        je      .skip
-        stdcall Phys.Contact, [x],[y], [h],[w],\
-                              [di], [di+2],[obj_h], [obj_w]
+	cmp	[uppedBoxAdr], di
+	je	.skip
+	stdcall Phys.Contact, [x],[y], [h],[w],\
+			      [di], [di+2],[obj_h], [obj_w]
 
-        mov     dl, [contactFlag]
-        cmp     dl, 0
-        jne     .end
+	mov	dl, [contactFlag]
+	cmp	dl, 0
+	jne	.end
 .skip:
-        add     di, 4
+	add	di, 4
 
-        loop    .checkObj
+	loop	.checkObj
 
 .end:
 
-        ret
+	ret
 endp 
 
 
 
-proc    CheckLift  uses di cx
+proc	CheckLift  uses di cx
      stdcall Chip.FirstPickContact, [x_pos],[y_pos], H,W,\
-                                Boxes_coordinates, box_col, box_a,box_a
-        mov     [uppedBoxID], box_col
-        sub     [uppedBoxID], cl
-        ; check if we can up box
-        xor     cx,cx
-        mov     cl, [contactFlag]
-        test    cl, availA+availD
-        jz     .end
+				Boxes_coordinates, box_col, box_x,box_y
+	mov	[uppedBoxID], box_col
+	sub	[uppedBoxID], cl
+	; check if we can up box
+	xor	cx,cx
+	mov	cl, [contactFlag]
+	test	cl, availA+availD
+	jz     .end
 
-        ;find the box we can up
-        mov     di, Boxes_coordinates
-        mov     cl, [uppedBoxID]
+	;find the box we can up
+	mov	di, Boxes_coordinates
+	mov	cl, [uppedBoxID]
 @@:
-        add     di, 4
-        loop    @B
-        stdcall Chip.GetBox, di
-        mov     [boxUpped], True
+	add	di, 4
+	loop	@B
+	stdcall Chip.GetBox, di
+	mov	[boxUpped], True
 .end:
-        ret
+	ret
 endp 

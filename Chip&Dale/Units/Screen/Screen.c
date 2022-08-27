@@ -36,7 +36,7 @@ proc    Screen.bkgClear uses es di ax
         pop     es
 
         mov     cx, 320*150
-        xor     ax,ax
+        mov	ax, $0035
         xor     di, di
         rep     stosb
 

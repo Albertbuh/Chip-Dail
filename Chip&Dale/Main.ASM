@@ -9,11 +9,15 @@ True = 1
 False = 0
 ZERO = 0
 QUIT = $7023
+
 	org 100h
 
 EntrypPoint:
 	stdcall Screen.SetMode,  $0013
+
 .A:
+	mov	di, ChipRight
+	mov	[ChipImgAdr], di
 	stdcall Timer
 
 .end:
@@ -26,6 +30,7 @@ proc	Timer
 	    RepSec	dq     1.2
 	    FloatSec	dw     ?
 	endl
+
 .cycle:
 	mov	ah, $2C
 	int	21h
@@ -40,35 +45,47 @@ proc	Timer
 	je	.skip
 	mov	[wOldSec], dx
 
-	stdcall Screen.bkgClear
-	stdcall Chip.Draw, [x_pos], [y_pos]
-	stdcall Box.Create, Boxes_coordinates
+	stdcall ViewUpdate
 
-
-	Call	ABOBA
-.skip:
 	stdcall KeyModel
 	cmp	ax, QUIT
-	jne	.cycle
-	ret
-endp
-
-ABOBA:
-	stdcall KeyModel
+	je	.end
 .next:
 	stdcall BoxShoot
 
 	stdcall Jump
+       ; stdcall ViewUpdate
 	cmp	[FallingFlag], True
 	jne	.skip
 	stdcall Falling
+       ; stdcall  ViewUpdate
 	cmp	[FallingFlag], False
 	jne	 .skip
+
 	stdcall SlowDown
+	;
+     ;	 stdcall ViewUpdate
+
+.skip:
+	stdcall KeyModel
+	cmp	ax, QUIT
+	jne	.cycle
+.end:
+	ret
+endp
+
+ABOBA:
+
 .skip:
 	ret
 
+proc	ViewUpdate
+	stdcall Screen.bkgClear
+	stdcall Box.Create, Boxes_coordinates
+	stdcall Chip.Draw, [x_pos], [y_pos]
 
+	ret
+endp
 
 
 
@@ -93,6 +110,7 @@ ABOBA:
 	include 'units\Phys\Jump.c'
 	include 'units\Phys\Contact.c'
 	include 'units\Keyboard\KeyPress.c'
+	include 'BMP.c'
 ;chip values
 x_pos	dw 10
 y_pos	dw 149
@@ -105,23 +123,43 @@ JumpFlag	db	False
 jpLimY		dw 0
 FallingFlag	db	False
 
-;Keyboard
+;key value
 prev_key    dw		?
 
 ;box values
 aboba = 109
-Boxes_coordinates   dw	150,149-box_a,\
+Boxes_coordinates   dw	150,149-box_y,\
 			150,149,\
-			160, 149,\
-			170, 149,\
-			310-box_a,aboba,\
-			310-box_a*2,aboba,\
-			310-box_a*3,aboba,\
-			310-box_a*4,aboba,\
-			310-box_a,aboba-60,\
-			310-box_a*2,aboba-60,\
-			310-box_a*3,aboba-60,\
-			310-box_a*4,aboba -60
+			150+box_x, 149,\
+			150+box_x*2, 149,\
+			310-box_x*4,aboba,\
+			310-box_x*3,aboba,\
+			310-box_x*2,aboba,\
+			310-box_x*1,aboba,\
+			310-box_x*4,aboba-60,\
+			310-box_x*3,aboba-60,\
+			310-box_x*2,aboba-60,\
+			310-box_x*1,aboba -60
 box_col=($-Boxes_coordinates)/4
 	include 'classes\Box\Box.du'
 
+const_8 db 8
+const_4 db 4
+ChipImgAdr  dw	    ?
+
+BoxImg	db	"C:Box.bmp",0
+fileHandle	dw ?
+header		dw 54 dup(0)
+pallete 	dw 256*4  dup(0)
+scrLine 	dw 320 dup(0)
+
+Error_msg   db	    "Error, probllems with open file$"
+
+
+biBitCount	 db	?
+biWidth 	 dw	?
+biHeight	 dw	?
+DateSize	 dw	?
+
+ChipRight	db "C:Chip1.bmp",0
+ChipLeft	db "C:Chip2.bmp",0

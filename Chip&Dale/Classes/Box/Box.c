@@ -21,23 +21,29 @@ proc    Box.Draw uses es di ax cx dx,\   ;drawing a single box
 
         push    $A000
         pop     es
-        mov     ax, box_color
-        mov     cx, box_a
+	
+	
+	stdcall	bmp_read, BoxImg, [x], [y]
+.end:
+        ret
+endp    
+  
+proc	drawrect,\
+	x, y
+	mov     ax, box_color
+        mov     cx, box_y
         mov     di, [y]
         imul    di, 320
         add     di, [x]
 .draw:
         push    cx
-        mov     cx, box_a
+        mov     cx, box_x
         rep     stosb
         pop     cx
-        sub     di, 320+box_a
+        sub     di, 320+box_x
         loop    .draw
-.end:
-        ret
-endp    
-  
-
+	ret 
+endp
    
 proc    Box.CanBeLifted
 

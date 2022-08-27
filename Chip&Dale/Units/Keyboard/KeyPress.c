@@ -1,14 +1,14 @@
 proc	KeyModel	;uses dx
 
-      ;  mov     ax, $0305
-      ;  mov     bx, $1f03
-      ;  int     16h
-        mov     ah, $01
-        int     16h
-        jz      .end
-        xor     ax,ax
-        int     16h
-        movzx   ax, ah 
+      ;  mov	 ax, $0305
+      ;  mov	 bx, $1f03
+      ;  int	 16h
+	mov	ah, $01
+	int	16h
+	jz	.end
+	xor	ax,ax
+	int	16h
+	movzx	ax, ah 
 
 	mov	dx, [prev_key]
 	cmp	ax, KEY_SPACE
@@ -29,7 +29,7 @@ proc	KeyModel	;uses dx
 	jne	.shot
 	cmp	[BoxFly], True
 	je	.pressA
-	stdcall	CheckLift	
+	stdcall CheckLift	
 	jmp	.end
 .shot:
 	mov	[BoxFly], True
@@ -39,27 +39,31 @@ proc	KeyModel	;uses dx
 .pressA:
 	cmp	[prev_key], KEY_A
 	jne	.pressD
-	stdcall	Chip.KeyMove
+	mov	di, ChipLeft
+	mov	[ChipImgAdr], di
+	stdcall Chip.KeyMove
 	cmp	[JumpFlag], True
 	je	.pressD
 	mov	[FallingFlag], True
 .pressD:
 	cmp	[prev_key], KEY_D
 	jne	.pressS
-	stdcall	Chip.KeyMove
+	mov	di, ChipRight
+	mov	[ChipImgAdr], di
+	stdcall Chip.KeyMove
 	cmp	[JumpFlag], True
 	je	.pressS
 	mov	[FallingFlag], True	
 .pressS:
 	cmp	[prev_key], KEY_S
 	jne	.pressSpace
-	stdcall	Chip.KeyMove
+	stdcall Chip.KeyMove
 .pressSpace:
 	
-	cmp     ax, KEY_SPACE
-        jne     .pressW
-        mov     [JumpFlag], True
-        mov     [FallingFlag], False 
+	cmp	ax, KEY_SPACE
+	jne	.pressW
+	mov	[JumpFlag], True
+	mov	[FallingFlag], False 
 .pressW:
 	cmp	ax, KEY_W
 	jne	.end

@@ -1,5 +1,6 @@
 box_color = $2a
-box_a = 10
+box_y = 10
+box_x = 15
 shootSpeed=15
 ;Shoot consts
 boxUp     = 0
