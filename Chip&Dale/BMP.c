@@ -146,11 +146,13 @@ endp
 proc    DrawLine32   uses si cx
         mov     si, scrLine
         mov     cx, [biWidth]
-        ;set color of pixel
+       ; dec     cx
 .newP:
         stdcall ReadColor32
-        movsd   ;read pixel 32 bits
+
+        movsd  ;read pixel 32 bits
         sub     di, 3
+.end:
         loop    .newP
         ret
 endp
@@ -166,7 +168,7 @@ proc    ReadColor32
         ;DF=1
         std
         lodsb
-        shr     al,2
+        shr     al, 2
         out     dx, al   ;Red
         lodsb
         shr     al, 2
@@ -193,7 +195,7 @@ NewLine:
         ret
 
 proc    ClearExtraP uses di cx ax
-        mov         al, $0035
+        mov         al, bkgColor
         mov         cx, 3
         rep         stosb
         ret

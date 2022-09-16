@@ -1,9 +1,8 @@
 proc	Chip.Draw  uses es di ax cx,\
 	x, y
 	
-	push	$A000
-	pop	es
-	mov	ax, color
+	
+	mov	ax, bkgColor
 	;set up coordinates
 	mov	di, [y]
 	imul	di, 320
@@ -16,20 +15,11 @@ proc	Chip.Draw  uses es di ax cx,\
 	je	.draw
 	mov	cx, H ; shift not pressed
 
-.draw:
-	;push	cx
-	;mov	cx, W
-	;rep	stosb
-	;sub	di, 320+W
-	;;pop	cx
-	;loop	.draw			 
-
-	
+.draw:	
 	stdcall bmp_read, [ChipImgAdr], [x_pos], [y_pos]
 	cmp	[boxUpped], False
 	je	.end
 	stdcall Chip.GetBox, [uppedBoxAdr]
-	
 
 .end:
 

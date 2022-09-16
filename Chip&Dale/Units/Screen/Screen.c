@@ -32,11 +32,10 @@ proc Screen.SetMode uses si di,\
 endp
 
 proc    Screen.bkgClear uses es di ax
-        push    $A000
-        pop     es
+        
 
         mov     cx, 320*150
-        mov	ax, $0035
+        mov	ax, bkgColor
         xor     di, di
         rep     stosb
 

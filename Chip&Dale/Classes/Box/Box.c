@@ -19,9 +19,7 @@ endp
 proc    Box.Draw uses es di ax cx dx,\   ;drawing a single box 
         x,y
 
-        push    $A000
-        pop     es
-	
+        
 	
 	stdcall	bmp_read, BoxImg, [x], [y]
 .end:

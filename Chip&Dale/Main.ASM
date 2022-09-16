@@ -1,5 +1,6 @@
 	include 'macro\proc16.inc'
 
+
 	include 'classes\MainHeroes\Chip.h'
 	include 'units\Keyboard\Keyboard.h'
 	include 'units\Screen\Screen.h'
@@ -14,22 +15,31 @@ QUIT = $7023
 
 EntrypPoint:
 	stdcall Screen.SetMode,  $0013
+	mov	bx, ax
 
 .A:
+
 	mov	di, ChipRight
 	mov	[ChipImgAdr], di
+	stdcall ViewUpdate
 	stdcall Timer
 
 .end:
+
+	stdcall Screen.SetMode, bx
+       ; mov	 ah, $4C
+       ; int	 10h
 	ret
 
 
-proc	Timer
+proc	Timer  uses  bx
 	locals
 	    wOldSec	dw	?
 	    RepSec	dq     1.2
 	    FloatSec	dw     ?
 	endl
+
+
 
 .cycle:
 	mov	ah, $2C
@@ -53,6 +63,7 @@ proc	Timer
 .next:
 	stdcall BoxShoot
 
+
 	stdcall Jump
        ; stdcall ViewUpdate
 	cmp	[FallingFlag], True
@@ -63,10 +74,12 @@ proc	Timer
 	jne	 .skip
 
 	stdcall SlowDown
-	;
-     ;	 stdcall ViewUpdate
+	stdcall ViewUpdate
+
+
 
 .skip:
+
 	stdcall KeyModel
 	cmp	ax, QUIT
 	jne	.cycle
@@ -79,22 +92,35 @@ ABOBA:
 .skip:
 	ret
 
-proc	ViewUpdate
+proc	ViewUpdate   uses es di ax cx bx dx
+
+
+
+	mov	ax, cs
+	add	ax, 1000h
+	mov	es, ax
+
 	stdcall Screen.bkgClear
 	stdcall Box.Create, Boxes_coordinates
 	stdcall Chip.Draw, [x_pos], [y_pos]
 
+	Call	Buf
+
 	ret
 endp
 
-
-
-
-
-
-
-
-
+Buf:
+	push	ds es
+	mov	ax,es
+	mov	ds,ax
+	push	$A000
+	pop	es
+	mov	cx, 320*200
+	xor	si, si
+	xor	di, di
+	rep	movsw
+	pop	es ds
+	ret
 
 
 
@@ -111,11 +137,14 @@ endp
 	include 'units\Phys\Contact.c'
 	include 'units\Keyboard\KeyPress.c'
 	include 'BMP.c'
+
+
 ;chip values
 x_pos	dw 10
 y_pos	dw 149
 contactFlag db		0000_0000b
 shiftState  db		False
+
 
 
 ;phys values
@@ -142,24 +171,17 @@ Boxes_coordinates   dw	150,149-box_y,\
 			310-box_x*1,aboba -60
 box_col=($-Boxes_coordinates)/4
 	include 'classes\Box\Box.du'
+	include 'BMP.du'
 
 const_8 db 8
 const_4 db 4
-ChipImgAdr  dw	    ?
-
 BoxImg	db	"C:Box.bmp",0
-fileHandle	dw ?
-header		dw 54 dup(0)
-pallete 	dw 256*4  dup(0)
-scrLine 	dw 320 dup(0)
-
-Error_msg   db	    "Error, probllems with open file$"
-
-
-biBitCount	 db	?
-biWidth 	 dw	?
-biHeight	 dw	?
-DateSize	 dw	?
-
+ChipImgAdr  dw	    ?
 ChipRight	db "C:Chip1.bmp",0
 ChipLeft	db "C:Chip2.bmp",0
+
+
+
+
+buffer	db	320*200 dup(?)
+
