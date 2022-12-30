@@ -194,6 +194,6 @@ proc	Chip.getHit
 		endp
 
 proc	NewHitTimer
-		; and [getRecentHit], False
+		 and [getRecentHit], False
 	ret
 endp	
