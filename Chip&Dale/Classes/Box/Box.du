@@ -1,6 +1,0 @@
-boxUpped        db      False
-uppedBoxID      db      0
-uppedBoxAdr dw          0
-BoxFly  db      False
-boxDir  dw      ?
-boxUppedAvail   db True  

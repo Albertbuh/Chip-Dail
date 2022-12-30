@@ -1,0 +1,58 @@
+boxUpped        db      False                                   ;check if we have upped box
+uppedBoxID      db      0                                       ;save upped box adr and ID
+uppedBoxAdr dd          0
+BoxFly  db      False                                           ;box in fly, not upped and not destroyed
+boxDir  dw      ?                                               ;box fly direction
+boxUppedAvail   db True                                         ;we can lift box
+
+
+box_y	dd pictBox_H                                            ;boxes height/weight
+box_x	dd pictBox_W
+
+;destroyed box values (need for destroy box animation)
+boxDstrXY	dd 2 dup(?)
+destroyBox	db False
+boxDstrID	db 0
+pictBoxDstrX dd 0
+
+;SAVE BOX COORDINATES
+Boxes_coordinates   dd           0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\                          ;4 PLACES SAVED FOR BOSS OBJECTS FOR HIT IN BOSS SCENE
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART                            ;CHEESE COORDINATES
+
+box_col=($-Boxes_coordinates)/8                                     ;box num
+
+
+;BUFFER (at the moment I use just to clear boxes, huge perspectives in future )
+Boxes_coordinates_newScene    dd 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART,\
+                                 0, CART
+
+box_col_NS = ($-Boxes_coordinates_newScene)/8                   ;buf box num
+                                                  

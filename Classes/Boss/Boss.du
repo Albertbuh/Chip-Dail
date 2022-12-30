@@ -1,0 +1,24 @@
+BossXY			dd 1500,400
+BossHP			dd	5
+BossImg 		dd	?
+BossStart		db False
+
+
+textYUMMY       TCHAR 'YUMMY!', 0
+flagYUMMY       db FALSE
+lenYUMMY        dd 1
+rectYUMMY       RECT 900,200,1100,400     
+
+bosstext TCHAR 'Let''s finish our training Chip!!!      ',0
+bosstxtRect RECT 0,0,0,0  
+
+
+;Boss cutscene variables
+cutscene_text db 'Great job Chip!               ',13,10 ,\
+                 'Now it''s time to move on to save Dale.',0
+
+cutscene_text2 db 'Try better next time!               ',0
+
+cutscene_len  dd 1
+cutsceneRect RECT 0,0,0,0      
+				      

@@ -1,0 +1,10 @@
+;enemy values
+EnemyXY                 dd  0,0  
+EnemyAlive              db  True
+Enemy_pictX             dd  0
+EnemySpeed              dd  10  
+
+
+EnemyW_dd dd pictEnemy_W
+EnemyH_dd dd pictEnemy_H
+		    

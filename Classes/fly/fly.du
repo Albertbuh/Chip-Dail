@@ -1,0 +1,18 @@
+;flying enemy
+FlyEnemyXY              dd  0,0
+FlyEnemyAlive           db  True
+Fly_pictX               dd  0
+FlyEnemyW_dd dd pictFly_W
+FlyEnemyH_dd dd pictFly_H
+FlyEnemySpeed           dd 12
+FlyEnemy_pictX          dd 0
+FlyEnemyMoveUp          db  True  ;direction of fly enemy movement
+
+
+FlyBallXY               dd  0,0
+FlyBallH_dd dd pictBall_W
+FlyBallW_dd dd pictBall_H
+pictBall_W=30
+pictBall_H=30
+FlyBallSpeedX           dd 17
+FlyBallSpeedY           dd 5   

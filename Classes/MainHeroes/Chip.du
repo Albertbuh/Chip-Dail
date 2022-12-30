@@ -1,0 +1,13 @@
+ ;chip values
+  pict_x        dd 0   
+  ChipState     dd ChipStay		  ;save chip animation state
+  x_pos         dd 400			  ;x/y coordinates	
+  y_pos         dd 99
+  W     dd pictW				  ;Height/Weight
+  H     dd pictH
+  heartSize dd 90				  ;size of hearts in top left corner	
+  getRecentHit  db False		  ;check if we can get hit
+  shiftState  db          False   ;jero in shift state
+  HP            dd      3		  ;AMOGUS
+  DirRight        db      True   ;direction hero looking at
+  prev_key    dd          ?       ;save previous pressed key (need to compatibility with DOS code) 

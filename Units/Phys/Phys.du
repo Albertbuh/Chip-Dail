@@ -1,0 +1,7 @@
+;phys values
+JumpFlag        db      False 
+jpLimY          dd      0            ;count limit height for jumps
+FallingFlag     db      False
+OnGround        db      True		 ; destroy flappy bird jumps
+Zoom            dd      1			; change according to monitor scaling and extension
+contactFlag db          0000_0000b  ;check objects contact

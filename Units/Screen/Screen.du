@@ -1,0 +1,34 @@
+  SCREEN_WIDTH   dd ?   
+  SCREEN_HEIGHT  dd ?
+  CLEARRECT     RECT     ;our field to redraw
+  HeightInBoxes   dd ?   ;field height counted in boxes
+
+
+ ;SCENE FLAGS 
+first_scene     db False
+second_scene    db False
+boss_scene               db False
+menu_scene               db True  
+final_scene     db False
+
+;Guied text
+txtRect RECT 10,150,900,400
+text TCHAR  'Hello little Chip          ',10,13,\
+            'Here is a little help for you      ',10,13,\
+            'Go - WASD (arrows)       ',10,13,\
+            'Pick and Push Box - Q    ',10,13,\
+            'Jump - Space',10,13,\
+            'GOOD LUCK!                         ',0
+text_len    dd 1
+text_flag   db False   
+
+
+;Transition values
+transition_flag db False
+transition_inc  dd True
+transition_rect RECT 0,0,physSpeed*3 ,1
+
+;values to show points
+points_len=3
+points  db  '000'  ,0 ;db      'AAA',0
+pointsRect RECT 400,400,500,500   

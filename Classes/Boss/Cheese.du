@@ -1,0 +1,15 @@
+CheeseXY	       dd    0,0
+CheeseBoxAdr	       dd    Boxes_coordinates+32*3
+
+CheeseFlag	       db False
+CheeseSpeed	       db 25
+CheeseCanBeUpped       db False 
+
+hCheeseImg	dd  cheeseAmount dup(?)
+curCheeseID	dd  1
+CheeseType	dd  cheeseAmount dup(STANDART)
+
+
+CheeseW dd 60
+CheeseH dd 40
+						
